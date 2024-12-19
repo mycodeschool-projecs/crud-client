@@ -1,38 +1,60 @@
 import HttpResponse from "./model/HttpResponse";
 import {Client} from "./model/Client";
+import {LoginUser, User} from "./model/User";
+import {loadConfig} from "./utile/utile";
 
 export default class Api {
 
-    api<T, U>(path: string, method = "GET", body: U): Promise<HttpResponse<T>> {
+   async api<T, U>(path: string, method = "GET", body: U,token:string|null): Promise<HttpResponse<T>> {
 
-        let basepath=process.env.REACT_APP_API_URL
+        // let basepath=process.env.REACT_APP_API_URL
+       let basepath = await this.getBaseURL();
+       if (!basepath) {
+           console.log("Flaaaaaaaaaaaaaaag")
+           basepath = "http://localhost:8082"; // fallback if config fails
+       }
+       const url = basepath + path;
+       console.log(url);
 
-        if(basepath==undefined){
-            basepath="http://localhost:1234";
-        }
+       console.log("---------------------AFTER")
+       // console.log(request URL: ${url});
 
-        const url = basepath + path;
+
+       // const url = basepath + path;
 
         // const url = path;
 
         console.log(url);
+
         const options: RequestInit = {
             method,
             mode: 'cors',
             headers: {
-                "Content-Type": "application/json;charset=utf-8"
+                "Content-Type": "application/json;charset=utf-8",
+                "Access-Control-Allow-Origin": "http://localhost:3000"
             },
 
 
             body: body == null ? null : JSON.stringify(body)
         }
-        return fetch(url, options)
+        if (token !== null) {
+            options.headers = {
+                ...options.headers,
+                Authorization: `Bearer `+token
+            };
+        }
+       console.log(url);
+
+       return fetch(url, options);
     }
 
     addClient=async (client:Client):Promise<Client>=>{
-
-        let response= await this.api(`/api/v1/add`,'POST',client);
+        let tk=localStorage.getItem("tkn");
+        console.log(tk);
+        console.log("------api add---");
+        let response= await this.api(`/api/v1/addclient`,'POST',client,tk);
         if(response.status==200){
+            console.log("KORECT")
             return response.json();
         }else{
             console.log("Eroare in api")
@@ -42,7 +64,7 @@ export default class Api {
 
     findClient=async (eml:string):Promise<Client>=>{
 
-        let response= await this.api(`/api/v1/find/${eml}`,'GET',null);
+        let response= await this.api(`/api/v1/find/${eml}`,'GET',null,null);
         if(response.status==200){
             return response.json() as Promise<Client>;
         }else{
@@ -50,9 +72,20 @@ export default class Api {
         }
     }
 
+    getBaseURL=async () =>{
+
+          try {
+              let response = await loadConfig();
+              return response.BASE_URL;
+          }catch (e) {
+              return Promise.reject("Error");
+          }
+
+
+    }
     delClient=async (client:string):Promise<Client>=>{
 
-        let response= await this.api(`/api/v1/del/${client}`,'DELETE',null);
+        let response= await this.api(`/api/v1/del/${client}`,'DELETE',null,null);
         if(response.status==200){
             return response.json();
         }else{
@@ -62,7 +95,11 @@ export default class Api {
 
 
     getAllClients=async ():Promise<Client[]>=>{
-        let response=await this.api('/api/v1/getall','GET',null);
+        let tk=localStorage.getItem("tkn");
+
+        let response=await this.api('/api/v1/getclients','GET',null,tk);
+        console.log(response);
+        console.log("-------------------get all")
         if(response.status==200){
             return response.json();
         }else{
@@ -70,5 +107,38 @@ export default class Api {
         }
     }
 
+
+    register=async (user:User):Promise<User>=>{
+        console.log("In Api");
+        console.log(user);
+
+            let response=await this.api('/api/v1/auth/signup','POST',user,null);
+            if(response.status==200){
+                return response.json();
+            }else {
+                return Promise.reject("Nu am putut adauga")
+            }
+
+    }
+
+    login=async (user:LoginUser)=>{
+        console.log("In Api");
+        console.log(user);
+
+        let response=await this.api('/api/v1/auth/signin','POST',user,null);
+        console.log("Raspuns");
+        console.log(response);
+        if(response.status==200){
+              return response.json();
+        }
+        return Promise.reject("Nashpa")
+        // if(response.){
+        //
+        //     return response.data;
+        // }else {
+        //     return Promise.reject("User eronat sau parola gresita!!!")
+        // }
+
+    }
 
 }

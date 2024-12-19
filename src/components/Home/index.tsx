@@ -5,11 +5,13 @@ import {Client} from "../../model/Client";
 import {WrapperHome} from "./indexstyle";
 import Api from "../../Api";
 import {LegacyRef, useEffect, useRef, useState} from "react";
-import {ReactComponent as Spinner} from "../../Images/gear.svg";
+import {ReactComponent as SpinnerIcon} from "../../Images/gear.svg";
 
 
 import { Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
+import styled from "styled-components";
+import {useNavigate} from "react-router-dom";
 
 interface DataType{
     key: number|null,
@@ -19,9 +21,16 @@ interface DataType{
     age:number
 }
 
+const Spinner = styled(SpinnerIcon)`
+  position: absolute;
+  z-index: 200;
+  width: 100px;
+  height: 100px;
+  fill: gray;
+`;
 export default function Home(){
 
-
+    const nav=useNavigate();
     const refEmail=useRef<InputRef>(null);
     const refName=useRef<InputRef>(null);
     const refSurNAme=useRef<InputRef>(null);
@@ -32,7 +41,7 @@ export default function Home(){
     const [num,setNum]=useState("");
     const [myBasic] = Form.useForm(); // Creează instanța formei
     const [showSpin,setShowSpin]=useState(true);
-
+    const [token,setToken]=useState("");
 
     const columns: TableProps<DataType>['columns'] = [
         {
@@ -66,6 +75,11 @@ export default function Home(){
 
     useEffect(()=>{
         console.log("La incarcare");
+        let tk=localStorage.getItem("tkn");
+
+        if(tk!=null){
+            setToken(tk);
+        }
 
         setData([]);
         setNum("jajlellell");
@@ -210,6 +224,9 @@ export default function Home(){
     }
 
 
+    let goBack=()=>{
+        nav("/");
+    }
 
     return(
         <WrapperHome>
@@ -220,7 +237,7 @@ export default function Home(){
             {/*        <>*/}
             {/*            /!*<img className={"spinner"} src="https://example.com/myGif.gif" alt="GIFFFY animat" />*!/*/}
             {/*            /!*<img  src={spinner} className={"spinner"} />*!/*/}
-            {/*            <Spinner className={"spinner"} />*/}
+            {/*            <SpinnerIcon className={"spinner"}  />*/}
             {/*        </>*/}
             {/*    ):""*/}
             {/*}*/}
@@ -292,6 +309,11 @@ export default function Home(){
                                 </Button>
                             </Form.Item>
 
+                            <Form.Item label={null}>
+                                <Button type="primary"  className={"btn back"} onClick={goBack} >
+                                    Back
+                                </Button>
+                            </Form.Item>
                         </div>
 
                     </Form>

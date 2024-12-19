@@ -30,6 +30,10 @@ export const WrapperHome = styled.div`
     display: flex;
 
   }
+  .back{
+    background-color: #282c34;
+    width: 90px;
+  }
 
   .ant-col.ant-form-item-control {
     margin-right: 20px;
@@ -68,16 +72,23 @@ export const WrapperHome = styled.div`
   //  background-color: wheat;
   //}
 
-  
+  //
   .spinner{ 
-      position: absolute;
+    position: absolute;
+    
     //top: 30px;
     //left:30px;
     z-index: 200;
-    width: 100px;
-    height: 100px;
-    fill:black;
+    width: 90px;
+    height: 90px;
+
   }
   
+  svg.spinner path{
+    fill: rgba(123,123,123,.5) !important;
+    stroke: rgba(123,123,123,.5) !important;
+  }
 
+  
+  
 `
