@@ -10,9 +10,10 @@ export default class Api {
         // let basepath=process.env.REACT_APP_API_URL
        let basepath = await this.getBaseURL();
        if (!basepath) {
-           console.log("Flaaaaaaaaaaaaaaag")
-           basepath = "http://localhost:8082"; // fallback if config fails
+            console.log("++ Nu aveam basepath")
+           basepath = "http://localhost:7500"; // fallback if config fails
        }
+
        const url = basepath + path;
        console.log(url);
 
@@ -30,8 +31,7 @@ export default class Api {
             method,
             mode: 'cors',
             headers: {
-                "Content-Type": "application/json;charset=utf-8",
-                "Access-Control-Allow-Origin": "http://localhost:3000"
+                "Content-Type": "application/json;charset=utf-8"
             },
 
 
@@ -48,23 +48,45 @@ export default class Api {
        return fetch(url, options);
     }
 
-    addClient=async (client:Client):Promise<Client>=>{
+    addNewClient=async (client:Client):Promise<Client>=>{
         let tk=localStorage.getItem("tkn");
         console.log(tk);
         console.log("------api add---");
         let response= await this.api(`/api/v1/addclient`,'POST',client,tk);
+        console.log("status="+response.status);
+        if(response.status==200){
+            console.log("KORECT")
+
+            return response.json();
+        }else{
+            console.log("Eroare in Promise la addclient")
+            return Promise.reject("Nu a mers adaugarea");
+        }
+    }
+
+    updClient=async (client:Client):Promise<Client>=>{
+        let tk=localStorage.getItem("tkn");
+        console.log(tk);
+        console.log("------api add---");
+        let response= await this.api(`/api/v1/updclient`,'POST',client,tk);
         if(response.status==200){
             console.log("KORECT")
             return response.json();
         }else{
-            console.log("Eroare in api")
+            console.log("Eroare in Promise la update")
             return Promise.reject(response.message);
         }
     }
 
     findClient=async (eml:string):Promise<Client>=>{
+        let tk=localStorage.getItem("tkn");
+        console.log(tk);
+        console.log("------api add---");
+        let response= await this.api(`/api/v1/findclient/${eml}`,'GET',null,tk);
+        console.log("Raspuns din api find client");
+        console.log(response);
+        console.log("------------------------------------------------");
 
-        let response= await this.api(`/api/v1/find/${eml}`,'GET',null,null);
         if(response.status==200){
             return response.json() as Promise<Client>;
         }else{
@@ -84,8 +106,10 @@ export default class Api {
 
     }
     delClient=async (client:string):Promise<Client>=>{
-
-        let response= await this.api(`/api/v1/del/${client}`,'DELETE',null,null);
+        let tk=localStorage.getItem("tkn");
+        console.log(tk);
+        console.log("------api add---");
+        let response= await this.api(`/api/v1/delclient/${client}`,'DELETE',null,tk);
         if(response.status==200){
             return response.json();
         }else{

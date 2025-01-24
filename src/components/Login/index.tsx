@@ -33,13 +33,20 @@ export default function Login(){
             email: refEml!.current!.value,
             password: refPass!.current!.value
         }
-        let response=await api.login(usrLogin);
-        if(response){
-            localStorage.clear();
-            localStorage.setItem("tkn",response.token);
+        try{
+            let response=await api.login(usrLogin);
 
-            navigate("/adduser")
+                localStorage.clear();
+                localStorage.setItem("tkn",response.token);
+
+                navigate("/adduser")
+
+        }catch (e) {
+            alert("Eroare Login!!")
+            navigate("/")
+
         }
+
 
     }
 

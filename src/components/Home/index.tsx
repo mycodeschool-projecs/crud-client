@@ -6,7 +6,7 @@ import {WrapperHome} from "./indexstyle";
 import Api from "../../Api";
 import {LegacyRef, useEffect, useRef, useState} from "react";
 import {ReactComponent as SpinnerIcon} from "../../Images/gear.svg";
-
+import PostMess from "../mesagerie/index"
 
 import { Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
@@ -112,6 +112,7 @@ export default function Home(){
     }
 
 
+
     let loadData=async ()=>{
         setShowSpin(true)
         let api=new Api();
@@ -140,18 +141,46 @@ export default function Home(){
             id:null
         }
 
+
         if(client.email.length>0&&client.name.length>0&&client.surName.length>0){
 
             let api=new Api();
             let newClient:Client=client;
-            newClient.id=null;
-            let response=await api.addClient(newClient).then(v=>{
-                myBasic.resetFields();
-                loadData();
-            }).catch(r=>{
-                console.log("Nashpa");
-                // basic.resetFields(()=>{})
+            let is:boolean=false;
+            await findEml(newClient.email).then(z=>{
+                newClient.id=z.id;
+                is=true;
+            }).catch(e=>{
+              is=false;
             });
+
+
+            console.log("====dupa verificare is="+is);
+
+            if(is){
+                // newClient.id=ldClient.id;
+                let response=await api.updClient(newClient).then(v=>{
+                    myBasic.resetFields();
+                    loadData();
+                }).catch(r=>{
+                    console.log(r);
+                    // basic.resetFields(()=>{})
+                });
+
+            }else{
+                console.log("Nu este jdlkhlh;l;l;l")
+                let response=await api.addNewClient(newClient).then(v=>{
+                    myBasic.resetFields();
+                    loadData();
+                    return;
+                }).catch(r=>{
+                    console.log(r.message);
+                    // basic.resetFields(()=>{})
+                });
+
+            }
+
+
 
         }
         console.log("schimb");
@@ -159,6 +188,18 @@ export default function Home(){
         myBasic.resetFields();
     }
 
+
+    let findEml=async (eml:string):Promise<Client>=>{
+        let api=new Api();
+        try{
+            return  api.findClient(eml);
+
+        }catch (e) {
+            return Promise.reject("nasha");
+        }
+
+
+    }
 
     const onFinish: FormProps<Client>['onFinish'] =async (values) => {
 
