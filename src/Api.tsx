@@ -98,6 +98,7 @@ export default class Api {
 
           try {
               let response = await loadConfig();
+
               return response.BASE_URL;
           }catch (e) {
               return Promise.reject("Error");
