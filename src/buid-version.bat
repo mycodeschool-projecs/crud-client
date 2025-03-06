@@ -7,19 +7,21 @@ if not defined SERVICE_VERSION (
 )
 
 echo Building Docker image...
-docker build -f Dockerfile -t kube-client:%SERVICE_VERSION% .
+@REM docker build -f Dockerfile -t kube-client:%SERVICE_VERSION% .
+docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t ion21/kube-client:%SERVICE_VERSION% --push .
+
 
 echo Getting the new image ID...
-setlocal enabledelayedexpansion
-for /f "tokens=*" %%i in ('docker images -q kube-client:%SERVICE_VERSION%') do set IMAGE_ID=%%i
-echo New image ID: !IMAGE_ID!
-endlocal
+@REM setlocal enabledelayedexpansion
+@REM for /f "tokens=*" %%i in ('docker images -q kube-client:%SERVICE_VERSION%') do set IMAGE_ID=%%i
+@REM echo New image ID: !IMAGE_ID!
+@REM endlocal
 
 echo Tagging the image...
-docker tag kube-client:%SERVICE_VERSION%  ion21/kube-client:%SERVICE_VERSION%
+@REM docker tag kube-client:%SERVICE_VERSION%  ion21/kube-client:%SERVICE_VERSION%
 
 echo Pushing the tagged image...
-docker push  ion21/kube-client:%SERVICE_VERSION%
+@REM docker sh  ion21/kube-client:%SERVICE_VERSION%
 
 echo Script completed.
 pause
