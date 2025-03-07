@@ -47,7 +47,7 @@ jobs:
         run: |
             cd crud-docker-files/
             echo -e "Current ./docker-compose.yaml\n$(cat docker-compose.yaml)"
-            sed -i -E 's_(mycodeschool/kube-client:)([^"]*)_\1'${{ env.BUILD_NUMBER }}'_' docker-compose.yaml
+            sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.BUILD_NUMBER }}'_' docker-compose.yaml
             echo -e "Updated ./docker-compose.yaml\n$(cat docker-compose.yaml)"
             git config user.name github-actions
             git config user.email github-actions@github.com
@@ -66,7 +66,7 @@ jobs:
         run: |
           cd crud-k8s-files/
           echo -e "Current ./deployment-client.yaml\n$(cat deployment-client.yaml)"
-          sed -i -E 's_(mycodeschool/kube-client:)([^"]*)_\1'${{ env.BUILD_NUMBER }}'_' deployment-client.yaml
+          sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.BUILD_NUMBER }}'_' deployment-client.yaml
           echo -e "Updated ./deployment-client.yaml\n$(cat deployment-client.yaml)"
           git config user.name github-actions
           git config user.email github-actions@github.com
