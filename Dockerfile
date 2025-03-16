@@ -36,7 +36,7 @@
 ## Use "serve" to serve the build folder on port 3000
 #CMD ["serve", "-s", "build", "-l", "3000"]
 
-FROM node:18-alpine
+FROM node:17
 
 # Set the working directory in the container
 WORKDIR /app
