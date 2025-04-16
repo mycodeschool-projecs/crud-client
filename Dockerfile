@@ -27,6 +27,7 @@ WORKDIR /app
 # Install "serve" globally to serve static files
 RUN npm install -g serve
 
+
 # Copy over the build artifacts from the 'build' stage
 COPY --from=build /app/build ./build
 
