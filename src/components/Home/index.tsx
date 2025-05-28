@@ -13,6 +13,10 @@ import type { TableProps } from 'antd';
 import styled from "styled-components";
 import {useNavigate} from "react-router-dom";
 
+// import { Client, IMessage } from '@stomp/stompjs';
+import SockJS from '@stomp/stompjs'
+
+
 interface DataType{
     key: number|null,
     name:string,
@@ -41,8 +45,10 @@ export default function Home(){
     const [num,setNum]=useState("");
     const [myBasic] = Form.useForm(); // Creează instanța formei
     const [showSpin,setShowSpin]=useState(true);
+    const [refresh,setRefresh]=useState(0);
     const [token,setToken]=useState("");
-
+    // const [chUser,setChUser]=useState<Client>(null);
+    const [messageRabbit,setMessageRabbit]=useState("");
     const columns: TableProps<DataType>['columns'] = [
         {
             title: 'Email',
@@ -95,6 +101,9 @@ export default function Home(){
     useEffect(()=>{
         console.log("------ Modif clnt")
         console.log(clnt);
+        setTimeout(()=>{
+                loadData();
+        },2000)
         // if(refName.current!=null&&refName.current.input!=null){
         //     refName.current.input.value="";
         // }
@@ -102,6 +111,12 @@ export default function Home(){
         // myBasic.resetFields();
     },[ch])
 
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            loadData();
+        },2000)
+    },[refresh])
 
     const client:Client={
         id: 100,
@@ -141,7 +156,6 @@ export default function Home(){
             id:null
         }
 
-
         if(client.email.length>0&&client.name.length>0&&client.surName.length>0){
 
             let api=new Api();
@@ -159,8 +173,11 @@ export default function Home(){
 
             if(is){
                 // newClient.id=ldClient.id;
+                setMessageRabbit(client.email+" updating");
+
                 let response=await api.updClient(newClient).then(v=>{
                     myBasic.resetFields();
+
                     loadData();
                 }).catch(r=>{
                     console.log(r);
@@ -169,12 +186,15 @@ export default function Home(){
 
             }else{
                 console.log("Nu este jdlkhlh;l;l;l")
+                setMessageRabbit(client.email+" adding");
+
                 let response=await api.addNewClient(newClient).then(v=>{
                     myBasic.resetFields();
                     loadData();
                     return;
                 }).catch(r=>{
                     console.log(r.message);
+                    setRefresh(prevState => ++prevState);
                     // basic.resetFields(()=>{})
                 });
 
@@ -233,6 +253,7 @@ export default function Home(){
     }
     let delEml=()=>{
         const emailValue = myBasic.getFieldValue("email"); // Preia valoarea câmpului "email"
+        setMessageRabbit(emailValue+" deleting");
 
         if(emailValue!=null){
             let api=new Api();
@@ -257,7 +278,10 @@ export default function Home(){
     let handleRowClick=async (row:DataType)=>{
 
         getByEml(row.email).then(c=>{
+            setMessageRabbit(c.email+" processing");
+
             myBasic.setFieldsValue({name:row.name,surName:row.surName,age:row.age,email:row.email,id:c.id});
+
 
         }).catch((e)=>console.log(e.value));
 
@@ -360,14 +384,18 @@ export default function Home(){
                     </Form>
 
 
+            {
+                messageRabbit?(
+                    <p>Status: {messageRabbit}</p>
 
-
+                ):""
+            }
 
 
 
 
             {
-                data?(
+                refresh&&data?(
                     <div className={"tbl"}>
                         <Table<DataType> className={"custom-tbl"}
                                          // components={{

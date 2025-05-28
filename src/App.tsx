@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import Home from "./components/Home";
 import SecurityCheck from "./components/SecurityCheck";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, useNavigate, BrowserRouter} from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import {loadConfig} from "./utile/utile";
@@ -11,7 +11,7 @@ import {loadConfig} from "./utile/utile";
 function App() {
 
   return (
-      <Router>
+       <BrowserRouter basename={"/"}>
           <Routes>
               <Route path="/" element={<SecurityCheck />} />
 
@@ -19,7 +19,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path={"/adduser"} element={<Home />}/>
           </Routes>
-      </Router>
+       </BrowserRouter>
     // <div className="App">
     //   <SecurityCheck/>
     // </div>

@@ -1,3 +1,4 @@
 {
-  "BASE_URL": "http://localhost:8082"
+  "BASE_URL": "http://localhost:8082",
+  "REACT_APP_API_URL": "http://localhost:3000"
 }
