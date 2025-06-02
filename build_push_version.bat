@@ -5,7 +5,8 @@ call service_version_number.bat
 echo Building Docker image...
 @REM docker build -f Dockerfile -t kube-client:%SERVICE_VERSION% .
 @REM docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t kube-client:%SERVICE_VERSION% .
-docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t ion21/kube-client:%SERVICE_VERSION% --push .
+@REM docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile -t ion21/kube-client:%SERVICE_VERSION% --push .
+docker buildx build --platform linux/amd64 -f Dockerfile -t ion21/kube-client:%SERVICE_VERSION% --push .
 echo Getting the new image ID...
 @REM setlocal enabledelayedexpansion
 @REM for /f "tokens=*" %%i in ('docker images -q kube-client:%SERVICE_VERSION%') do set IMAGE_ID=%%i

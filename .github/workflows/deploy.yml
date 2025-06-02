@@ -1,7 +1,7 @@
 name: CD - Deploy kube-client
 on:
   push:
-    branches: [ master ]
+    branches: [ '**' ]
   workflow_dispatch:
 
 permissions:
