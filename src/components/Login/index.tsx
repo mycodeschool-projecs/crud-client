@@ -1,78 +1,83 @@
-import { Button } from "antd";
-import { WrapperLogin} from "./indexstyle";
-import {useNavigate} from "react-router-dom";
-import {createRef, useRef} from "react";
+import { Button, Form, Input, message, Spin } from "antd";
+import { WrapperLogin } from "./indexstyle";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Api from "../../Api";
-import {LoginUser} from "../../model/User";
+import { LoginUser } from "../../model/User";
 
-
-
-interface User{
-    id: number|null,
-    firstName:string,
-    lastName:string,
-    email:string,
-    password:string
-}
-
-export default function Login(){
-
+export default function Login() {
     const navigate = useNavigate();
-    let refEml = createRef<HTMLInputElement>();
-    let refPass = createRef<HTMLInputElement>();
+    const [loading, setLoading] = useState(false);
+    const [form] = Form.useForm();
 
-    let goBack=()=>{
-        navigate("/")
-    }
+    const goBack = () => {
+        navigate("/");
+    };
 
+    const onFinish = async (values: { email: string; password: string }) => {
+        setLoading(true);
+        const api = new Api();
 
-    let loginClk=async ()=>{
-        let api=new Api();
+        const usrLogin: LoginUser = {
+            email: values.email,
+            password: values.password
+        };
 
-        let usrLogin:LoginUser={
-            email: refEml!.current!.value,
-            password: refPass!.current!.value
+        try {
+            const response = await api.login(usrLogin);
+            localStorage.clear();
+            localStorage.setItem("tkn", response.token);
+            message.success("Login successful!");
+            navigate("/adduser");
+        } catch (e) {
+            message.error("Login failed. Please check your credentials.");
+        } finally {
+            setLoading(false);
         }
-        try{
-            let response=await api.login(usrLogin);
+    };
 
-                localStorage.clear();
-                localStorage.setItem("tkn",response.token);
-
-                navigate("/adduser")
-
-        }catch (e) {
-            alert("Eroare Login!!")
-            navigate("/")
-
-        }
-
-
-    }
-
-
-
-    return(
+    return (
         <WrapperLogin>
-            <div className={"frm"}>
-                <div className={"sect"}>
-                    <label>Email</label>
-                    <input ref={refEml} typeof={"text"} className={"camp"}/>
-                </div>
-                <div className={"sect"}>
-                    <label>Password</label>
-                    <input ref={refPass} typeof={"text"} className={"camp"}/>
-                </div>
+            <div className="login-container">
+                <h2>Login</h2>
+                <Spin spinning={loading}>
+                    <Form
+                        form={form}
+                        name="login"
+                        layout="vertical"
+                        onFinish={onFinish}
+                        autoComplete="off"
+                    >
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[
+                                { required: true, message: "Please input your email!" },
+                                { type: "email", message: "Please enter a valid email address!" }
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
 
-                <div className={"buttons"}>
+                        <Form.Item
+                            label="Password"
+                            name="password"
+                            rules={[{ required: true, message: "Please input your password!" }]}
+                        >
+                            <Input.Password />
+                        </Form.Item>
 
-                    <Button type="primary" className={"btn submit"} onClick={loginClk}>Submit</Button>
-                    <Button type="primary" className={"btn back"} onClick={goBack}>Back</Button>
-
-                </div>
+                        <div className="buttons">
+                            <Button type="primary" htmlType="submit" className="btn submit">
+                                Login
+                            </Button>
+                            <Button type="default" className="btn back" onClick={goBack}>
+                                Back
+                            </Button>
+                        </div>
+                    </Form>
+                </Spin>
             </div>
-
         </WrapperLogin>
-
-    )
+    );
 }

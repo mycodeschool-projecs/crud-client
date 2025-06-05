@@ -1,118 +1,114 @@
-import { Button } from "antd";
-import { WrapperRegister} from "./indexstyle";
-import {useNavigate} from "react-router-dom";
-import {createRef, useEffect, useRef, useState} from "react";
+import { Button, Form, Input, message, Spin } from "antd";
+import { WrapperRegister } from "./indexstyle";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Api from "../../Api";
-import {User} from "../../model/User";
+import { User } from "../../model/User";
 
+interface RegisterFormValues {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
 
+export default function Register() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
+  const goBack = () => {
+    navigate("/");
+  };
 
-export default function Register(){
+  const onFinish = async (values: RegisterFormValues) => {
+    setLoading(true);
 
-    const navigate = useNavigate();
-    // const refEml=useRef(null);
-    let refEml = createRef<HTMLInputElement>();
-    let refPass = createRef<HTMLInputElement>();
-    let refFirst = createRef<HTMLInputElement>();
-    let refLast = createRef<HTMLInputElement>();
-    const [eml,setEml]=useState("");
-    const [pass,setPass]=useState("");
-    const [firstN,setFirstN]=useState("");
-    const [lastN,setLast]=useState("");
+    const newUser: User = {
+      id: null,
+      email: values.email,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      password: values.password,
+      role: 0
+    };
 
+    const api = new Api();
 
-    const [ch,setCh]=useState(0);
-
-    useEffect(()=>{
-        setEml("");
-
-        refEml.current!.value="";
-        refEml.current!.defaultValue="";
-        console.log("Schimb fata")
-
-    },[ch])
-
-    let goBack=()=>{
-        navigate("/")
+    try {
+      await api.register(newUser);
+      message.success("Registration successful!");
+      form.resetFields();
+      navigate("/");
+    } catch (e) {
+      console.error("Registration error:", e);
+      message.error("Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
+  return (
+    <WrapperRegister>
+      <div className="register-container">
+        <h2>Register</h2>
+        <Spin spinning={loading}>
+          <Form
+            form={form}
+            name="register"
+            layout="vertical"
+            onFinish={onFinish}
+            autoComplete="off"
+          >
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: "Please input your email!" },
+                { type: "email", message: "Please enter a valid email address!" }
+              ]}
+            >
+              <Input placeholder="Email" />
+            </Form.Item>
 
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: "Please input your password!" },
+                { min: 6, message: "Password must be at least 6 characters!" }
+              ]}
+            >
+              <Input.Password placeholder="Password" />
+            </Form.Item>
 
-    let registerUser=async ()=>{
-            let newUser:User={
-                id:null,
-                email:refEml.current?.value?refEml.current?.value:"",
-                firstName:refFirst.current?.value?refFirst.current?.value:"",
-                lastName:refLast.current?.value?refLast.current?.value:"",
-                password:refPass.current?.value?refPass.current?.value:"",
-                role: 0
-            }
-            if(newUser.password.length>0&&newUser.email.length>0){
-                let api=new Api();
-                try{
-                    let response=await api.register(newUser).then(a=>console.log(a)).catch(e=>console.log(e));
-                    setCh(prevState => prevState++);
+            <Form.Item
+              label="First Name"
+              name="firstName"
+              rules={[{ required: true, message: "Please input your first name!" }]}
+            >
+              <Input placeholder="First Name" />
+            </Form.Item>
 
-                    if (refEml.current) {
-                        refEml.current.value = "";
-                    }
-                    if (refFirst.current) {
-                        refFirst.current.value = "";
-                    }
-                    if (refPass.current) {
-                        refPass.current.value = "";
-                    }
-                    if (refLast.current) {
-                        refLast.current.value = "";
-                    }
-                    navigate("/");
+            <Form.Item
+              label="Last Name"
+              name="lastName"
+              rules={[{ required: true, message: "Please input your last name!" }]}
+            >
+              <Input placeholder="Last Name" />
+            </Form.Item>
 
-                }catch (e){
-                    console.log(e);
-                    navigate("/")
-
-
-                }
-
-    }
-    }
-
-
-    return(
-        <WrapperRegister>
-            {
-                ch>=0?(
-                    <div className={"frmr"}>
-                        <div className={"sect"}>
-                            <label>Email</label>
-                            <input ref={refEml} typeof={"text"} className={"camp"} placeholder={"Email"} defaultValue={eml}/>
-                        </div>
-                        <div className={"sect"}>
-                            <label>Password</label>
-                            <input ref={refPass} type={"PASSWORD"} className={"camp"} placeholder={"Password"} defaultValue={pass}/>
-                        </div>
-
-                        <div className={"sect"}>
-                            <label>First Name</label>
-                            <input ref={refFirst} typeof={"text"} className={"camp"} placeholder={"First Name"} defaultValue={firstN}/>
-                        </div>
-                        <div className={"sect"}>
-                            <label>Last Name</label>
-                            <input ref={refLast} typeof={"text"} className={"camp"} placeholder={"Last Name"} defaultValue={lastN} />
-                        </div>
-                        <div className={"buttons"}>
-
-                            <Button type="primary" className={"btn submit"} onClick={registerUser}>Submit</Button>
-                            <Button type="primary" className={"btn back"} onClick={goBack}>Back</Button>
-
-                        </div>
-                    </div>
-                ):""
-            }
-
-
-        </WrapperRegister>
-
-    )
+            <div className="buttons">
+              <Button type="primary" htmlType="submit" className="btn submit">
+                Register
+              </Button>
+              <Button type="default" className="btn back" onClick={goBack}>
+                Back
+              </Button>
+            </div>
+          </Form>
+        </Spin>
+      </div>
+    </WrapperRegister>
+  );
 }

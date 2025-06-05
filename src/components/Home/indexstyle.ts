@@ -1,94 +1,121 @@
 import styled from "styled-components";
 
 export const WrapperHome = styled.div`
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding-top: 20px;
-  height: 100%;
-  overflow: unset;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20px;
 
-  .tbl {
-    margin-top: 20px;
-    width: 500px;
-    height: 200px;
-  }
-
-  Form {
-    padding-top: 20px;
-    background-color: wheat;
+  .client-management {
+    width: 100%;
+    max-width: 1200px;
     display: flex;
     flex-direction: column;
-    //align-items: start;
-    justify-content: flex-start;
-    //justify-content: start;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      max-width: 100%;
+    }
   }
 
-  .buttons {
-    display: flex;
-
-  }
-  .back{
-    background-color: #282c34;
-    width: 90px;
+  h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #1890ff;
+    font-size: 28px;
   }
 
-  .ant-col.ant-form-item-control {
-    margin-right: 20px;
+  h3 {
+    text-align: center;
+    margin: 24px 0 16px;
+    color: #1890ff;
+    font-size: 20px;
   }
 
-  label {
+  .form-container {
     width: 100%;
-    text-align: left;
-    margin-left: 20px;
+    max-width: 600px;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+
+    @media (max-width: 768px) {
+      max-width: 90%;
+      padding: 20px;
+    }
   }
 
-  .ant-col.ant-form-item-label {
-    width: 200px;
+  .table-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+
+    @media (max-width: 768px) {
+      max-width: 90%;
+      padding: 15px;
+      overflow-x: auto;
+    }
   }
 
-  .btn.delete {
-    background-color: red;
+  .ant-form-item {
+    margin-bottom: 16px;
   }
 
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
 
-  //.custom-tbl th{
-  //  background-color: #5b8cb7 !important; /* Exemplu de culoare */
-  //  color: #000; /* Culoarea textului */
-  //}
-  //
-  //.custom-tbl-header th {
-  //  font-weight: bold;
-  //}
-  //
-  .custom-tbl tbody .ant-table-cell{
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+
+  .btn {
+    min-width: 120px;
     height: 40px;
-    padding: 10px;
-  }
-  //.custom-tbl tbody tr{
-  //  font-weight: bold;
-  //  background-color: wheat;
-  //}
+    font-size: 16px;
 
-  //
-  .spinner{ 
-    position: absolute;
-    
-    //top: 30px;
-    //left:30px;
-    z-index: 200;
-    width: 90px;
-    height: 90px;
-
-  }
-  
-  svg.spinner path{
-    fill: rgba(123,123,123,.5) !important;
-    stroke: rgba(123,123,123,.5) !important;
+    @media (max-width: 480px) {
+      width: 100%;
+      margin-bottom: 12px;
+    }
   }
 
-  
-  
-`
+  .submit {
+    background-color: #52c41a;
+
+    &:hover {
+      background-color: #73d13d;
+    }
+  }
+
+  .delete {
+    background-color: #ff4d4f;
+
+    &:hover {
+      background-color: #ff7875;
+    }
+  }
+
+  .back {
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .clickable-row {
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f0f7ff;
+    }
+  }
+`;

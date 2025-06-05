@@ -1,407 +1,332 @@
 
-import type { FormProps } from 'antd';
-import {Button, Checkbox, Form, Input, InputRef} from 'antd';
-import {Client} from "../../model/Client";
-import {WrapperHome} from "./indexstyle";
+import { Button, Form, Input, Table, Spin, message, Badge } from 'antd';
+import { BellOutlined } from '@ant-design/icons';
+import { Client } from "../../model/Client";
+import { WrapperHome } from "./indexstyle";
 import Api from "../../Api";
-import {LegacyRef, useEffect, useRef, useState} from "react";
-import {ReactComponent as SpinnerIcon} from "../../Images/gear.svg";
-import PostMess from "../mesagerie/index"
-
-import { Space, Table, Tag } from 'antd';
+import { useEffect, useState } from "react";
 import type { TableProps } from 'antd';
-import styled from "styled-components";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-interface DataType{
-    key: number|null,
-    name:string,
-    surName:string,
-    email:string,
-    age:number
+interface DataType {
+  key: number | null;
+  name: string;
+  surName: string;
+  email: string;
+  age: number;
 }
 
-const Spinner = styled(SpinnerIcon)`
-  position: absolute;
-  z-index: 200;
-  width: 100px;
-  height: 100px;
-  fill: gray;
-`;
-export default function Home(){
+export default function Home() {
+  const navigate = useNavigate();
+  const [data, setData] = useState<DataType[]>([]);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(0);
 
-    const nav=useNavigate();
-    const refEmail=useRef<InputRef>(null);
-    const refName=useRef<InputRef>(null);
-    const refSurNAme=useRef<InputRef>(null);
-    const refAge=useRef<InputRef>(null);
-    const[data,setData]=useState<DataType[]>();
-    const [clnt,setClnt]=useState<Client>();
-    const [ch,setCh]=useState(0);
-    const [num,setNum]=useState("");
-    const [myBasic] = Form.useForm(); // Creează instanța formei
-    const [showSpin,setShowSpin]=useState(true);
-    const [token,setToken]=useState("");
+  const columns: TableProps<DataType>['columns'] = [
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Surname',
+      dataIndex: 'surName',
+      key: 'surName',
+    },
+    {
+      title: 'Age',
+      dataIndex: 'age',
+      key: 'age',
+    }
+  ];
 
-    const columns: TableProps<DataType>['columns'] = [
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-            render: (text) => <a>{text}</a>,
-        },
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text) => <a>{text}</a>,
-
-        },
-        {
-            title: 'SurName',
-            dataIndex: 'surName',
-            key: 'surName',
-            render: (text) => <a>{text}</a>,
-
-        },
-        {
-            title: 'Age',
-            dataIndex: 'age',
-            key: 'age',
-            render: (number)=><a>{number}</a>
-
-        }
-        ]
-
-    useEffect(()=>{
-        console.log("La incarcare");
-        let tk=localStorage.getItem("tkn");
-
-        if(tk!=null){
-            setToken(tk);
-        }
-
-        setData([]);
-        setNum("jajlellell");
-        refName!.current!.input!.value="dsllkl";
-        setClnt({name:"",surName:"",email:"",age:0,id:null})
-        loadData();
-        setCh(1);
-        // myBasic.setFieldValue( "name","Nouă valoare" );
-
-        setShowSpin(true);
-    },[]);
-
-    useEffect(()=>{
-        console.log("------ Modif clnt")
-        console.log(clnt);
-        // if(refName.current!=null&&refName.current.input!=null){
-        //     refName.current.input.value="";
-        // }
-        // setNum("");
-        // myBasic.resetFields();
-    },[ch])
-
-
-    const client:Client={
-        id: 100,
-        name: "Nelu",
-        surName: "Santinelu",
-        email: "aaa@aaa",
-        age: 22
+  useEffect(() => {
+    const token = localStorage.getItem("tkn");
+    if (!token) {
+      message.error("Authentication required");
+      navigate("/");
+      return;
     }
 
+    loadData();
+    fetchUnreadNotificationsCount();
+  }, []);
+
+  const fetchUnreadNotificationsCount = async () => {
+    try {
+      const api = new Api();
+      const notifications = await api.getNotificationsByReadStatus(false);
+      setUnreadNotificationsCount(notifications.length);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      // Don't show an error message to the user, just log it
+    }
+  };
 
 
-    let loadData=async ()=>{
-        setShowSpin(true)
-        let api=new Api();
-        let response=api.getAllClients().then(l=>{
-            let dt:DataType[]=[];
-            dt=l.map(v=>{
-                return {key:v.id,name:v.name,surName:v.surName,email:v.email,age:v.age} as DataType;
-            });
-            setShowSpin(true);
-            setData(dt);
-        }).catch(e=>{
-            console.log(e.value)
-            setShowSpin(true);
+
+  const loadData = async () => {
+    setTableLoading(true);
+    try {
+      const api = new Api();
+      const clients = await api.getAllClients();
+      const formattedData = clients.map(client => ({
+        key: client.id,
+        name: client.name,
+        surName: client.surName,
+        email: client.email,
+        age: client.age
+      }));
+      setData(formattedData);
+    } catch (error) {
+      message.error("Failed to load clients");
+      console.error("Error loading clients:", error);
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
+  const findClientByEmail = async (email: string): Promise<Client | null> => {
+    try {
+      const api = new Api();
+      return await api.findClient(email);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const onFinish = async (values: any) => {
+    setLoading(true);
+    try {
+      const api = new Api();
+      const client: Client = {
+        name: values.name,
+        surName: values.surName,
+        email: values.email,
+        age: Number(values.age),
+        id: values.id || null
+      };
+
+      // Check if client exists
+      const existingClient = await findClientByEmail(client.email);
+
+      if (existingClient) {
+        // Update existing client
+        client.id = existingClient.id;
+        await api.updClient(client);
+        message.success("Client updated successfully");
+      } else {
+        // Add new client
+        await api.addNewClient(client);
+        message.success("Client added successfully");
+      }
+
+      form.resetFields();
+      loadData();
+    } catch (error) {
+      message.error("Operation failed");
+      console.error("Error saving client:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onEmailBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+    const email = event.target.value;
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      const client = await findClientByEmail(email);
+      if (client) {
+        form.setFieldsValue({
+          name: client.name,
+          surName: client.surName,
+          age: client.age,
+          email: client.email,
+          id: client.id
         });
+      }
+    } catch (error) {
+      // Silent fail - just don't populate the form
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteClient = async () => {
+    const email = form.getFieldValue("email");
+    if (!email) {
+      message.warning("Please enter an email to delete");
+      return;
     }
 
-    let onSubmit=async ()=>{
-
-
-        setShowSpin(true);
-        let client:Client={
-            name: myBasic.getFieldValue("name"),
-            surName:refSurNAme!.current!.input!.value,
-            email:refEmail!.current!.input!.value,
-            age:Number (refAge!.current!.input!.value),
-            id:null
-        }
-
-
-        if(client.email.length>0&&client.name.length>0&&client.surName.length>0){
-
-            let api=new Api();
-            let newClient:Client=client;
-            let is:boolean=false;
-            await findEml(newClient.email).then(z=>{
-                newClient.id=z.id;
-                is=true;
-            }).catch(e=>{
-              is=false;
-            });
-
-
-            console.log("====dupa verificare is="+is);
-
-            if(is){
-                // newClient.id=ldClient.id;
-                let response=await api.updClient(newClient).then(v=>{
-                    myBasic.resetFields();
-                    loadData();
-                }).catch(r=>{
-                    console.log(r);
-                    // basic.resetFields(()=>{})
-                });
-
-            }else{
-                console.log("Nu este jdlkhlh;l;l;l")
-                let response=await api.addNewClient(newClient).then(v=>{
-                    myBasic.resetFields();
-                    loadData();
-                    return;
-                }).catch(r=>{
-                    console.log(r.message);
-                    // basic.resetFields(()=>{})
-                });
-
-            }
-
-
-
-        }
-        console.log("schimb");
-
-        myBasic.resetFields();
+    setLoading(true);
+    try {
+      const api = new Api();
+      await api.delClient(email);
+      message.success("Client deleted successfully");
+      form.resetFields();
+      loadData();
+    } catch (error) {
+      message.error("Failed to delete client");
+      console.error("Error deleting client:", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  const handleRowClick = (record: DataType) => {
+    form.setFieldsValue({
+      name: record.name,
+      surName: record.surName,
+      age: record.age,
+      email: record.email
+    });
 
-    let findEml=async (eml:string):Promise<Client>=>{
-        let api=new Api();
-        try{
-            return  api.findClient(eml);
-
-        }catch (e) {
-            return Promise.reject("nasha");
+    // Get the ID
+    findClientByEmail(record.email)
+      .then(client => {
+        if (client) {
+          form.setFieldsValue({ id: client.id });
         }
+      });
+  };
 
+  const goBack = () => {
+    navigate("/");
+  };
 
-    }
+  const goToNotifications = () => {
+    navigate("/notifications");
+  };
 
-    const onFinish: FormProps<Client>['onFinish'] =async (values) => {
-
+  // Update unread count when component gets focus
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchUnreadNotificationsCount();
     };
 
+    window.addEventListener('focus', handleFocus);
 
-    const onFinishFailed: FormProps<Client>['onFinishFailed'] = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
     };
+  }, []);
 
-    let onEmail=async (eml:HTMLInputElement):Promise<void>=>{
-        let api=new Api();
-        let response=api.findClient(eml.value).then(c=>{
-                myBasic.setFieldsValue({name:c.name,surName:c.surName,age:c.age,email:c.email,id:c.id})
+  return (
+    <WrapperHome>
+      <div className="client-management">
+        <h2>Client Management</h2>
 
-            setShowSpin(false);
-            }
+        <Spin spinning={loading}>
+          <div className="form-container">
+            <Form
+              name="clientForm"
+              form={form}
+              layout="vertical"
+              onFinish={onFinish}
+              autoComplete="off"
+            >
+              <Form.Item
+                name="id"
+                hidden
+              >
+                <Input />
+              </Form.Item>
 
-        ).catch(v=>{
-            setShowSpin(false);
-            console.log("Eroare nu am gasit email!!!")
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: 'Please input email!' },
+                  { type: 'email', message: 'Please enter a valid email!' }
+                ]}
+              >
+                <Input onBlur={onEmailBlur} placeholder="Email" />
+              </Form.Item>
 
-        });
-    }
+              <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: 'Please input name!' }]}
+              >
+                <Input placeholder="Name" />
+              </Form.Item>
 
+              <Form.Item
+                label="Surname"
+                name="surName"
+                rules={[{ required: true, message: 'Please input surname!' }]}
+              >
+                <Input placeholder="Surname" />
+              </Form.Item>
 
-    let getByEml=async (eml:string):Promise<Client>=>{
-        let api=new Api();
-        let response=await api.findClient(eml)
-        return response;
-    }
-    let delEml=()=>{
-        const emailValue = myBasic.getFieldValue("email"); // Preia valoarea câmpului "email"
+              <Form.Item
+                label="Age"
+                name="age"
+                rules={[
+                  { required: true, message: 'Please input age!' },
+                  { 
+                    validator: (_, value) => {
+                      const num = Number(value);
+                      if (isNaN(num) || num <= 0) {
+                        return Promise.reject('Age must be a positive number!');
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ]}
+              >
+                <Input type="number" placeholder="Age" />
+              </Form.Item>
 
-        if(emailValue!=null){
-            let api=new Api();
+              <div className="button-group">
+                <Button type="primary" htmlType="submit" className="btn submit">
+                  Save
+                </Button>
+                <Button type="primary" danger onClick={deleteClient} className="btn delete">
+                  Delete
+                </Button>
+                <Button onClick={goBack} className="btn back">
+                  Back
+                </Button>
+                <Badge count={unreadNotificationsCount} offset={[10, 0]}>
+                  <Button 
+                    type="primary" 
+                    onClick={goToNotifications} 
+                    className="btn notifications"
+                    icon={<BellOutlined />}
+                  >
+                    Notifications
+                  </Button>
+                </Badge>
+              </div>
+            </Form>
+          </div>
+        </Spin>
 
-            let response=api.delClient(emailValue).then(u=> {
-                    myBasic.resetFields();
-
-                    loadData();
-                }
-            ).catch(e=>{
-                console.log("ERRRRRRRR "+e)
-
-            });
-
-
-
-
-
-        }
-    }
-
-    let handleRowClick=async (row:DataType)=>{
-
-        getByEml(row.email).then(c=>{
-            myBasic.setFieldsValue({name:row.name,surName:row.surName,age:row.age,email:row.email,id:c.id});
-
-        }).catch((e)=>console.log(e.value));
-
-
-    }
-
-
-    let goBack=()=>{
-        nav("/");
-    }
-
-    return(
-        <WrapperHome>
-
-
-            {/*{*/}
-            {/*    showSpin?(*/}
-            {/*        <>*/}
-            {/*            /!*<img className={"spinner"} src="https://example.com/myGif.gif" alt="GIFFFY animat" />*!/*/}
-            {/*            /!*<img  src={spinner} className={"spinner"} />*!/*/}
-            {/*            <SpinnerIcon className={"spinner"}  />*/}
-            {/*        </>*/}
-            {/*    ):""*/}
-            {/*}*/}
-
-                    <Form
-                        name="myBasic"
-                        form={myBasic}
-                        labelCol={{ span: 8 }}
-                        wrapperCol={{ span: 16 }}
-                        style={{ maxWidth: 600 }}
-                        // initialValues={{ remember: true }}
-                        // onFinish={onFinish}
-                        onFinishFailed={onFinishFailed}
-                        autoComplete="off"
-                    >
-
-                        <Form.Item
-                            label="Email"
-                            name="email"
-                            rules={[{ required: true, message: 'Please input your email!' }]}
-                            className={"lbl"}
-                        >
-                            <Input ref={refEmail} onBlur={(em)=> onEmail(em.target)} />
-                        </Form.Item>
-
-
-                        <Form.Item<Client>
-                            label="Name"
-                            name="name"
-                            rules={[{ required: true, message: 'Please input your username!' }]}
-                        >
-
-                                    <Input ref={refName} value={num} />
-
-
-
-                        </Form.Item>
-
-                        <Form.Item<Client>
-                            label="Surname"
-                            name="surName"
-                            rules={[{ required: true, message: 'Please input your surname!' }]}
-                        >
-                            <Input ref={refSurNAme} value={num} />
-                        </Form.Item>
-
-                        <Form.Item<Client>
-                            label="Age"
-                            name="age"
-                            rules={[{ required: true, message: 'Please input your Age!' }]}
-                        >
-                            <Input ref={refAge} defaultValue={0} />
-                        </Form.Item>
-
-
-                        <div className={"buttons"}>
-                            <Form.Item label={null}>
-                                <Button type="primary" onClick={(e)=>{
-                                    e.preventDefault();
-                                    onSubmit()
-                                }}>
-                                    Submit
-                                </Button>
-                            </Form.Item>
-
-                            <Form.Item label={null}>
-                                <Button type="primary" danger className={"btn delete"} onClick={delEml}>
-                                    Delete
-                                </Button>
-                            </Form.Item>
-
-                            <Form.Item label={null}>
-                                <Button type="primary"  className={"btn back"} onClick={goBack} >
-                                    Back
-                                </Button>
-                            </Form.Item>
-                        </div>
-
-                    </Form>
-
-
-
-
-
-
-
-
-            {
-                data?(
-                    <div className={"tbl"}>
-                        <Table<DataType> className={"custom-tbl"}
-                                         // components={{
-                                         //     header: {
-                                         //         cell: (props:React.HTMLAttributes<HTMLTableCellElement>) => (
-                                         //             <th {...props} style={{ backgroundColor: '#FEFF00', color: '#000', fontWeight: 'bold' }}>
-                                         //                 {props.children}
-                                         //             </th>
-                                         //         ),
-                                         //     },
-                                         //     body: {
-                                         //         cell: (props:React.HTMLAttributes<HTMLTableCellElement>) => (
-                                         //             <th {...props} style={{ backgroundColor: '#91b0b0', color: '#000', fontWeight: 'bold' }}>
-                                         //                 {props.children}
-                                         //             </th>
-                                         //         ),
-                                         //
-                                         //     }
-                                         //
-                                         // }}
-                                         columns={columns} dataSource={data.length>0?data:[]} pagination={{ pageSize: 5 }}
-                                         onRow={(record, rowIndex) => {
-                                                return {
-                                                            onClick: () => handleRowClick(record), // Eveniment click pe rând
-                                                        };
-                                                }}
-                        />
-
-                    </div>
-                ):(
-                 ""
-                )
-            }
-
-        </WrapperHome>
-    )
+        <div className="table-container">
+          <h3>Client List</h3>
+          <Table
+            loading={tableLoading}
+            columns={columns}
+            dataSource={data}
+            pagination={{ pageSize: 5 }}
+            rowClassName="clickable-row"
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record),
+            })}
+          />
+        </div>
+      </div>
+    </WrapperHome>
+  );
 }

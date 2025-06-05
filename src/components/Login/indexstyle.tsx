@@ -1,70 +1,70 @@
 import styled from "styled-components";
 
 export const WrapperLogin = styled.div`
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 20px;
-  height: 100%;
-  overflow: unset;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 
+  .login-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
-  .frm {
-    width: 400px;
-    height: 200px;
-    background-color: #ddebef;
-    display: flex;
-    flex-direction: column;
-    padding-top: 30px;
+    @media (max-width: 480px) {
+      max-width: 90%;
+      padding: 20px;
+    }
   }
 
-  .sect {
-    width: 100%;
-    display: flex;
-    align-items: flex-start;
-    height: auto;
+  h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #1890ff;
+    font-size: 24px;
+  }
+
+  .ant-form-item {
+    margin-bottom: 16px;
   }
 
   .buttons {
-    width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    margin-top: 24px;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
   }
 
   .btn {
-    margin: 10px;
-    width: 150px;
+    min-width: 120px;
     height: 40px;
-    font-size: 15px;
-  }
+    font-size: 16px;
 
-  .back {
-    background-color: #424854;
-  }
-
-  label {
-    width: 43%;
-    margin-left: 10px;
-    margin-top: 18px;
-
-    font-size: 18px;
-    line-height: 19px;
-  }
-
-  .camp {
-    width: 95%;
-    height: 35px;
-    border-radius: 3px;
-    margin: 10px 10px;
-    box-sizing: border-box;
-    border: none;
+    @media (max-width: 480px) {
+      width: 100%;
+      margin-bottom: 12px;
+    }
   }
 
   .submit {
-    background-color: darkgreen;
+    background-color: #52c41a;
+
+    &:hover {
+      background-color: #73d13d;
+    }
   }
 
-`
+  .back {
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+`;
