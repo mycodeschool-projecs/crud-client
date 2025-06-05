@@ -66,7 +66,6 @@ export default function Home() {
       setUnreadNotificationsCount(notifications.length);
     } catch (error) {
       console.error("Error fetching unread notifications:", error);
-      // Don't show an error message to the user, just log it
     }
   };
 
@@ -114,16 +113,13 @@ export default function Home() {
         id: values.id || null
       };
 
-      // Check if client exists
       const existingClient = await findClientByEmail(client.email);
 
       if (existingClient) {
-        // Update existing client
         client.id = existingClient.id;
         await api.updClient(client);
         message.success("Client updated successfully");
       } else {
-        // Add new client
         await api.addNewClient(client);
         message.success("Client added successfully");
       }
@@ -155,7 +151,6 @@ export default function Home() {
         });
       }
     } catch (error) {
-      // Silent fail - just don't populate the form
     } finally {
       setLoading(false);
     }
@@ -191,7 +186,6 @@ export default function Home() {
       email: record.email
     });
 
-    // Get the ID
     findClientByEmail(record.email)
       .then(client => {
         if (client) {
@@ -200,9 +194,7 @@ export default function Home() {
       });
   };
 
-  // Navigation is now handled by the Navbar component
 
-  // Update unread count when component gets focus
   useEffect(() => {
     const handleFocus = () => {
       fetchUnreadNotificationsCount();
