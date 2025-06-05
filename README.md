@@ -1,46 +1,69 @@
-# Getting Started with Create React App
+# CRUD Client Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
+The CRUD Client Application is a React-based frontend that provides a user interface for interacting with the CRUD microservices. It allows users to authenticate, manage client data, and view system notifications.
+
+## Key Features
+- User registration and login
+- Client management:
+  - Create new clients
+  - View client details
+  - Update client information
+  - Delete clients
+  - List all clients
+- Notification center to view system events
+- Responsive design for desktop and mobile devices
+
+## Service Interactions
+- **Auth API**: Handles user authentication and proxies client operations
+- **Command API**: Manages client data (accessed through Auth API)
+- **Notifications API**: Provides system notifications about client operations
+
+## Technologies
+- React
+- TypeScript
+- React Router for navigation
+- Axios for API communication
+- Bootstrap for UI components
+- Docker for containerization
+
+## Running the Application
+### Prerequisites
+- Node.js 14 or higher
+- npm or yarn
+
+### Local Development
+1. Clone the repository
+2. Navigate to the crud-client directory
+3. Install dependencies:
+   ```
+   npm install
+   ```
+4. Start the development server:
+   ```
+   npm start
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### Environment Configuration
+Create a `.env` file in the root directory with the following variables:
+```
+REACT_APP_AUTH_API_URL=http://localhost:8081/api/v1
+REACT_APP_NOTIFICATIONS_API_URL=http://localhost:8082/api/notifications
+```
+
+### Docker
+The application can also be run using Docker:
+```
+docker build -t crud-client .
+docker run -p 3000:80 crud-client
+```
+
+### Kubernetes
+Kubernetes deployment configurations are available in the crud-app-k8s directory.
 
 ## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `npm start`: Runs the app in development mode
+- `npm test`: Launches the test runner
+- `npm run build`: Builds the app for production
+- `npm run eject`: Ejects from Create React App configuration
