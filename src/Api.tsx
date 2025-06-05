@@ -171,36 +171,12 @@ export default class Api {
     getAllNotifications = async (): Promise<Notification[]> => {
         let tk = localStorage.getItem("tkn");
 
-        // Use the notifications service URL directly instead of relying on the base URL
-        const notificationsUrl = "http://localhost:8083";
-        const url = notificationsUrl + '/api/notifications';
+        let response = await this.api('/api/v1/notifications', 'GET', null, tk);
+        console.log("Response from getAllNotifications:", response);
 
-        const options: RequestInit = {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                "Content-Type": "application/json;charset=utf-8"
-            }
-        };
-
-        if (tk !== null) {
-            options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${tk}`
-            };
-        }
-
-        try {
-            const response = await fetch(url, options);
-            console.log(`Response status for ${url}: ${response.status}`);
-
-            if (response.status == 200) {
-                return response.json();
-            } else {
-                return Promise.reject("Could not get notifications");
-            }
-        } catch (error) {
-            console.error("API request failed:", error);
+        if (response.status == 200) {
+            return response.json();
+        } else {
             return Promise.reject("Could not get notifications");
         }
     }
@@ -208,36 +184,12 @@ export default class Api {
     getNotificationsByReadStatus = async (read: boolean): Promise<Notification[]> => {
         let tk = localStorage.getItem("tkn");
 
-        // Use the notifications service URL directly
-        const notificationsUrl = "http://localhost:8083";
-        const url = notificationsUrl + `/api/notifications/status/${read}`;
+        let response = await this.api(`/api/v1/notifications/status/${read}`, 'GET', null, tk);
+        console.log("Response from getNotificationsByReadStatus:", response);
 
-        const options: RequestInit = {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                "Content-Type": "application/json;charset=utf-8"
-            }
-        };
-
-        if (tk !== null) {
-            options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${tk}`
-            };
-        }
-
-        try {
-            const response = await fetch(url, options);
-            console.log(`Response status for ${url}: ${response.status}`);
-
-            if (response.status == 200) {
-                return response.json();
-            } else {
-                return Promise.reject("Could not get notifications by read status");
-            }
-        } catch (error) {
-            console.error("API request failed:", error);
+        if (response.status == 200) {
+            return response.json();
+        } else {
             return Promise.reject("Could not get notifications by read status");
         }
     }
@@ -245,37 +197,13 @@ export default class Api {
     markNotificationAsRead = async (id: number): Promise<Notification> => {
         let tk = localStorage.getItem("tkn");
 
-        // Use the notifications service URL directly
-        const notificationsUrl = "http://localhost:8083";
-        const url = notificationsUrl + `/api/notifications/${id}/mark-read`;
+        let response = await this.api(`/api/v1/notifications/${id}/mark-read`, 'PUT', null, tk);
+        console.log("Response from markNotificationAsRead:", response);
 
-        const options: RequestInit = {
-            method: 'PUT',
-            mode: 'cors',
-            headers: {
-                "Content-Type": "application/json;charset=utf-8"
-            }
-        };
-
-        if (tk !== null) {
-            options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${tk}`
-            };
-        }
-
-        try {
-            const response = await fetch(url, options);
-            console.log(`Response status for ${url}: ${response.status}`);
-
-            if (response.status == 200) {
-                console.log("Notification marked as read");
-                return response.json();
-            } else {
-                return Promise.reject("Could not mark notification as read");
-            }
-        } catch (error) {
-            console.error("API request failed:", error);
+        if (response.status == 200) {
+            console.log("Notification marked as read");
+            return response.json();
+        } else {
             return Promise.reject("Could not mark notification as read");
         }
     }
@@ -283,37 +211,13 @@ export default class Api {
     markAllNotificationsAsRead = async (): Promise<void> => {
         let tk = localStorage.getItem("tkn");
 
-        // Use the notifications service URL directly
-        const notificationsUrl = "http://localhost:8083";
-        const url = notificationsUrl + '/api/notifications/mark-all-read';
+        let response = await this.api('/api/v1/notifications/mark-all-read', 'PUT', null, tk);
+        console.log("Response from markAllNotificationsAsRead:", response);
 
-        const options: RequestInit = {
-            method: 'PUT',
-            mode: 'cors',
-            headers: {
-                "Content-Type": "application/json;charset=utf-8"
-            }
-        };
-
-        if (tk !== null) {
-            options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${tk}`
-            };
-        }
-
-        try {
-            const response = await fetch(url, options);
-            console.log(`Response status for ${url}: ${response.status}`);
-
-            if (response.status == 200) {
-                console.log("All notifications marked as read");
-                return;
-            } else {
-                return Promise.reject("Could not mark all notifications as read");
-            }
-        } catch (error) {
-            console.error("API request failed:", error);
+        if (response.status == 200) {
+            console.log("All notifications marked as read");
+            return;
+        } else {
             return Promise.reject("Could not mark all notifications as read");
         }
     }

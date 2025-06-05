@@ -200,13 +200,7 @@ export default function Home() {
       });
   };
 
-  const goBack = () => {
-    navigate("/");
-  };
-
-  const goToNotifications = () => {
-    navigate("/notifications");
-  };
+  // Navigation is now handled by the Navbar component
 
   // Update unread count when component gets focus
   useEffect(() => {
@@ -295,19 +289,6 @@ export default function Home() {
                 <Button type="primary" danger onClick={deleteClient} className="btn delete">
                   Delete
                 </Button>
-                <Button onClick={goBack} className="btn back">
-                  Back
-                </Button>
-                <Badge count={unreadNotificationsCount} offset={[10, 0]}>
-                  <Button 
-                    type="primary" 
-                    onClick={goToNotifications} 
-                    className="btn notifications"
-                    icon={<BellOutlined />}
-                  >
-                    Notifications
-                  </Button>
-                </Badge>
               </div>
             </Form>
           </div>

@@ -48,9 +48,10 @@ The CRUD Client Application is a React-based frontend that provides a user inter
 ### Environment Configuration
 Create a `.env` file in the root directory with the following variables:
 ```
-REACT_APP_AUTH_API_URL=http://localhost:8081/api/v1
-REACT_APP_NOTIFICATIONS_API_URL=http://localhost:8082/api/notifications
+REACT_APP_AUTH_API_URL=http://localhost:8082/api/v1
 ```
+
+Note: All API calls, including notifications, are now routed through the Auth Service which acts as a gateway.
 
 ### Docker
 The application can also be run using Docker:

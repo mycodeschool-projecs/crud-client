@@ -1,0 +1,37 @@
+.navbar-container {
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #fff;
+}
+
+.navbar-menu {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.logout-item {
+  margin-left: auto;
+}
+
+.logout-button {
+  color: #ff4d4f;
+}
+
+.logout-button:hover {
+  color: #ff7875;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar-menu {
+    padding: 0 10px;
+  }
+  
+  .ant-menu-item {
+    padding: 0 10px;
+  }
+}
