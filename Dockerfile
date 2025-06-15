@@ -1,27 +1,37 @@
-# ---------- Build Stage ----------
+# ----------------------------
+# 1) Build Stage
+# ----------------------------
 FROM node:18-alpine AS build
 
+# Create app directory
 WORKDIR /app
 
-
-ARG VITE_MODE=production
-ENV VITE_MODE=$VITE_MODE
-
-
-
+# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
+# Copy the rest of your source code
 COPY . .
 
+# Build the React production bundle
+RUN npm run build
 
-RUN npm run build -- --mode $VITE_MODE
+# ----------------------------
+# 2) Production Stage
+# ----------------------------
+FROM node:18-alpine
 
+# Create and use an app directory
+WORKDIR /app
 
-FROM nginx:stable-alpine
+# Install "serve" globally to serve static files
+RUN npm install -g serve
 
+# Copy over the build artifacts from the 'build' stage
+COPY --from=build /app/build ./build
 
-COPY --from=build /app/dist /usr/share/nginx/html
+# Expose port 3000
+EXPOSE 3000
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Use "serve" to serve the build folder on port 3000
+CMD ["serve", "-s", "build", "-l", "3000"]
