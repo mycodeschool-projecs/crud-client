@@ -1,7 +1,9 @@
-name: CD - Deploy kube-client
+
+name: CD – Deploy CRUD (Client)
+
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop, fix/** ]
   workflow_dispatch:
 
 permissions:
@@ -9,67 +11,58 @@ permissions:
   packages: write
 
 jobs:
-  deploy:
+  # ─────────────────────────── BUILD ────────────────────────────────
+  build-client:
     runs-on: ubuntu-latest
-    steps:
-      - name: Set build number
-        id: build-number
-        run: echo "BUILD_NUMBER=$(date '+%d.%m.%Y.%H.%M.%S')" >> $GITHUB_ENV
+    env:
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/master' && 'prod' || 'dev' }}
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+    outputs:
+      tag: ${{ steps.build.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Docker Build and push
+      - id: build
+        name: Build & push multi-arch image
         run: |
           chmod +x ci/build-publish.sh
-          USERNAME=mycodeschool \
-          REPO=crud-client-api \
-          TAG=${{ env.BUILD_NUMBER }} \
-          ci/build-publish.sh ./
-#
-#  update-docker-compose:
+          ./ci/build-publish.sh "$ENVIRONMENT"      # scriptul scrie tag=$TAG în GITHUB_OUTPUT
+
+  # ─────────────────────────── DEPLOY (master) ─────────────────────
+#  deploy-ec2:
+#    needs: build-client
+#    if: github.ref == 'refs/heads/master'
 #    runs-on: ubuntu-latest
 #    steps:
-      - name: Checkout other repository
-        uses: actions/checkout@v2
-        with:
-          repository: 'mycodeschool-projecs/crud-docker-files'
-          token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
-          path: 'crud-docker-files'
-
-      - name: Update and commit app version in docker-compose.yaml in other repository
-        run: |
-            cd crud-docker-files/
-            echo -e "Current ./docker-compose.yaml\n$(cat docker-compose.yaml)"
-            sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.BUILD_NUMBER }}'_' docker-compose.yaml
-            echo -e "Updated ./docker-compose.yaml\n$(cat docker-compose.yaml)"
-            git config user.name github-actions
-            git config user.email github-actions@github.com
-            git add .
-            git commit -m "new app version: ${{ env.BUILD_NUMBER }}"
-            git push origin HEAD:master
-
-      - name: Checkout crud-k8s-files repository
-        uses: actions/checkout@v2
-        with:
-          repository: 'mycodeschool-projecs/crud-k8s-files'
-          token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
-          path: 'crud-k8s-files'
-
-      - name: Update and commit app version in deployment-kube-land.yml in other repository
-        run: |
-          cd crud-k8s-files/
-          echo -e "Current ./deployment-client.yaml\n$(cat deployment-client.yaml)"
-          sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.BUILD_NUMBER }}'_' deployment-client.yaml
-          echo -e "Updated ./deployment-client.yaml\n$(cat deployment-client.yaml)"
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "new k8s version: ${{ env.BUILD_NUMBER }}"
-          git push origin HEAD:master
+#      - name: Update tag & restart client
+#        uses: appleboy/ssh-action@v0.1.10
+#        with:
+#          host:     ${{ secrets.EC2_HOST }}
+#          username: ${{ secrets.EC2_USER }}
+#          key:      ${{ secrets.EC2_SSH_KEY }}
+#          script: |
+#            set -euo pipefail
+#
+#            ENV_FILE=/srv/online-shop/.env
+#            NEW_TAG="${{ needs.build-client.outputs.tag }}"
+#
+#            echo "🔄  Set CLIENT_TAG=$NEW_TAG"
+#            if grep -q '^CLIENT_TAG=' "$ENV_FILE"; then
+#              sudo sed -i "s/^CLIENT_TAG=.*/CLIENT_TAG=$NEW_TAG/" "$ENV_FILE"
+#            else
+#              echo "CLIENT_TAG=$NEW_TAG" | sudo tee -a "$ENV_FILE"
+#            fi
+#
+#            echo "🚢  Pull & restart client"
+#            # dacă fișierul tău se numește docker-compose.yml, schimbă extensia aici
+#            sudo docker compose -f /srv/online-shop/docker-compose.yaml pull client
+#            sudo docker compose -f /srv/online-shop/docker-compose.yaml up -d --no-deps client
