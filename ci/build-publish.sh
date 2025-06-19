@@ -4,7 +4,7 @@ set -euo pipefail
 
 # === Config ===
 USERNAME="mycodeschool"
-REPO="crud-client-api"
+REPO="crud-client"
 ENVIRONMENT="${1:-dev}"
 BUILD_NUMBER="$(date '+%d.%m.%Y.%H.%M.%S')"
 TAG="${BUILD_NUMBER}-${ENVIRONMENT}"
