@@ -67,8 +67,8 @@ jobs:
         run: |
           cd crud-k8s-files/k8s-files-raw/
           echo -e "Current ./app-client.yaml\n$(cat app-client.yaml)"
-          sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.TAG }}'_' auth-service.yaml
-          echo -e "Updated ./auth-service.yaml\n$(cat auth-service.yaml)"
+          sed -i -E 's_(mycodeschool/crud-client:)([^"]*)_\1'${{ env.TAG }}'_' app-client.yaml
+          echo -e "Updated ./app-client.yaml\n$(cat app-client.yaml)"
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
