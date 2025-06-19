@@ -18,7 +18,8 @@ jobs:
       ENVIRONMENT: ${{ github.ref == 'refs/heads/master' && 'prod' || 'dev' }}
 
     outputs:
-      tag: ${{ steps.build.outputs.tag }}
+      tag: ${{ steps.generate-tag.outputs.tag }}
+      environment: ${{ steps.generate-tag.outputs.environment }}
 
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +32,51 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Generate Tag
+        id: generate-tag
+        run: |
+          DATE="$(date '+%d.%m.%Y.%H.%M.%S')"
+          TAG="${DATE}-${ENVIRONMENT}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+          echo "📦 Generated tag: ${TAG}"
+
       - id: build
         name: Build & push multi-arch image
         run: |
+          export TAG="${{ steps.generate-tag.outputs.tag }}"
+          echo "🐳 Building and pushing image: ${USERNAME}/${REPO}:${TAG}"
           chmod +x ci/build-publish.sh
           ./ci/build-publish.sh "$ENVIRONMENT"      # scriptul scrie tag=$TAG în GITHUB_OUTPUT
+          
+  update-k8s-files:
+    needs: build-client
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ needs.build-client.outputs.tag }}
+      ENVIRONMENT: ${{ needs.build-client.outputs.environment }}
+    steps:
+      - name: Checkout k8s-files repository
+        uses: actions/checkout@v2
+        with:
+          repository: 'mycodeschool-projecs/crud-k8s-files'
+          token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
+          path: 'crud-k8s-files'
+
+      - name: Update and commit app version in auth-service.yaml in other repository
+        run: |
+          cd crud-k8s-files/k8s-files-raw/
+          echo -e "Current ./app-client.yaml\n$(cat app-client.yaml)"
+          sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.TAG }}'_' auth-service.yaml
+          echo -e "Updated ./auth-service.yaml\n$(cat auth-service.yaml)"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "new app version: ${{ env.TAG }}"
+          git push origin HEAD:master
+          
+          
+          
 
   # ─────────────────────────── DEPLOY (master) ─────────────────────
 #  deploy-ec2:
