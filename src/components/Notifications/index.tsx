@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Api from '../../Api';
 import { Notification } from '../../model/Notification';
 import { Card, List, Badge, Button, Typography, Tag, Spin, Alert, Empty, Divider } from 'antd';
@@ -11,11 +11,7 @@ const Notifications: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const api = new Api();
 
-    useEffect(() => {
-        fetchNotifications();
-    }, []);
-
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         try {
             setLoading(true);
             const data = await api.getAllNotifications();
@@ -27,7 +23,11 @@ const Notifications: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [api]);
+
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
 
     const handleMarkAsRead = async (id: number) => {
         try {

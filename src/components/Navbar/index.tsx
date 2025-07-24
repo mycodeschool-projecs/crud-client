@@ -1,26 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Badge, Button } from 'antd';
 import { HomeOutlined, UserOutlined, BellOutlined, LogoutOutlined } from '@ant-design/icons';
 import Api from '../../Api';
 import './style.css';
+import { logout } from '../../keycloak/KeycloakProvider';
+import { useAppSelector } from '../../store/hooks';
+import { selectIsAuthenticated } from '../../store/slices/authSlice';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(0);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  useEffect(() => {
-    const token = localStorage.getItem("tkn");
-    setIsAuthenticated(!!token);
-    
-    if (token) {
-      fetchUnreadNotificationsCount();
-    }
-  }, [location.pathname]);
-
-  const fetchUnreadNotificationsCount = async () => {
+  const fetchUnreadNotificationsCount = useCallback(async () => {
     try {
       const api = new Api();
       const notifications = await api.getNotificationsByReadStatus(false);
@@ -28,12 +22,22 @@ const Navbar: React.FC = () => {
     } catch (error) {
       console.error("Error fetching unread notifications:", error);
     }
-  };
+  }, []);
+
+  const checkNotifications = useCallback(() => {
+    if (isAuthenticated) {
+      fetchUnreadNotificationsCount();
+    }
+  }, [fetchUnreadNotificationsCount, isAuthenticated]);
+
+  useEffect(() => {
+    checkNotifications();
+  }, [checkNotifications, location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem("tkn");
-    setIsAuthenticated(false);
-    navigate("/login");
+    // Use Keycloak logout which will also clear localStorage and update Redux state
+    logout();
+    // No need to navigate, Keycloak will redirect to the login page
   };
 
   // Update unread count when component gets focus

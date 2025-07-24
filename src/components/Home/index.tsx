@@ -4,7 +4,7 @@ import { BellOutlined } from '@ant-design/icons';
 import { Client } from "../../model/Client";
 import { WrapperHome } from "./indexstyle";
 import Api from "../../Api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { TableProps } from 'antd';
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,14 @@ interface DataType {
   surName: string;
   email: string;
   age: number;
+}
+
+interface FormValues {
+  id?: number | null;
+  name: string;
+  surName: string;
+  email: string;
+  age: string | number;
 }
 
 export default function Home() {
@@ -47,19 +55,7 @@ export default function Home() {
     }
   ];
 
-  useEffect(() => {
-    const token = localStorage.getItem("tkn");
-    if (!token) {
-      message.error("Authentication required");
-      navigate("/");
-      return;
-    }
-
-    loadData();
-    fetchUnreadNotificationsCount();
-  }, []);
-
-  const fetchUnreadNotificationsCount = async () => {
+  const fetchUnreadNotificationsCount = useCallback(async () => {
     try {
       const api = new Api();
       const notifications = await api.getNotificationsByReadStatus(false);
@@ -67,11 +63,9 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching unread notifications:", error);
     }
-  };
+  }, []);
 
-
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setTableLoading(true);
     try {
       const api = new Api();
@@ -90,7 +84,19 @@ export default function Home() {
     } finally {
       setTableLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("tkn");
+    if (!token) {
+      message.error("Authentication required");
+      navigate("/");
+      return;
+    }
+
+    loadData();
+    fetchUnreadNotificationsCount();
+  }, [navigate, loadData, fetchUnreadNotificationsCount]);
 
   const findClientByEmail = async (email: string): Promise<Client | null> => {
     try {
@@ -101,7 +107,7 @@ export default function Home() {
     }
   };
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: FormValues) => {
     setLoading(true);
     try {
       const api = new Api();
@@ -205,7 +211,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, [fetchUnreadNotificationsCount]);
 
   return (
     <WrapperHome>

@@ -7,23 +7,30 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Notifications from "./components/Notifications";
 import Navbar from "./components/Navbar";
+import KeycloakProvider from './keycloak/KeycloakProvider';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 
 function App() {
   return (
-    <Router>
-      <div className="app-container">
-        <Navbar />
-        <div className="content-container">
-          <Routes>
-            <Route path="/" element={<SecurityCheck />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/adduser" element={<Home />} />
-            <Route path="/notifications" element={<Notifications />} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <Provider store={store}>
+      <KeycloakProvider>
+        <Router>
+          <div className="app-container">
+            <Navbar />
+            <div className="content-container">
+              <Routes>
+                <Route path="/" element={<SecurityCheck />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/adduser" element={<Home />} />
+                <Route path="/notifications" element={<Notifications />} />
+              </Routes>
+            </div>
+          </div>
+        </Router>
+      </KeycloakProvider>
+    </Provider>
   );
 }
 
