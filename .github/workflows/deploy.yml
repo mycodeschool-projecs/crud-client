@@ -3,7 +3,7 @@ name: CD – Deploy CRUD (Client)
 
 on:
   push:
-    branches: [ master, develop, fix/** ]
+    branches: [ master, develop, fix/**,feat/** ]
   workflow_dispatch:
 
 permissions:
