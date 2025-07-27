@@ -3,7 +3,7 @@ import { Button, Form, Input, Table, Spin, message, Badge } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import { Client } from "../../model/Client";
 import { WrapperHome } from "./indexstyle";
-import Api from "../../Api";
+import Api from "../../service/api/Api";
 import { useEffect, useState } from "react";
 import type { TableProps } from 'antd';
 import { useNavigate } from "react-router-dom";

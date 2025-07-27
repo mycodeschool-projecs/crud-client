@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Badge, Button } from 'antd';
 import { HomeOutlined, UserOutlined, BellOutlined, LogoutOutlined } from '@ant-design/icons';
-import Api from '../../Api';
+import Api from '../../service/api/Api';
 import './style.css';
 
 const Navbar: React.FC = () => {

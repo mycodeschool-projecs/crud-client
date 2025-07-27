@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Api from '../../Api';
+import Api from '../../service/api/Api';
 import { Notification } from '../../model/Notification';
 import { Card, List, Badge, Button, Typography, Tag, Spin, Alert, Empty, Divider } from 'antd';
 import { BellOutlined, CheckOutlined, CheckCircleOutlined } from '@ant-design/icons';
@@ -33,7 +33,7 @@ const Notifications: React.FC = () => {
         try {
             await api.markNotificationAsRead(id);
             console.log('Notification marked as read');
-            // Update the local state to reflect the change
+            // Update the local service to reflect the change
             setNotifications(prevNotifications =>
                 prevNotifications.map(notification =>
                     notification.id === id
@@ -50,7 +50,7 @@ const Notifications: React.FC = () => {
         try {
             await api.markAllNotificationsAsRead();
             console.log('All notifications marked as read');
-            // Update the local state to reflect the change
+            // Update the local service to reflect the change
             setNotifications(prevNotifications =>
                 prevNotifications.map(notification => ({ ...notification, read: true }))
             );
