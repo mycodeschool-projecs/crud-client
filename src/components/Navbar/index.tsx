@@ -23,15 +23,11 @@ const Navbar: React.FC = () => {
     }
   }, []);
 
-  const checkNotifications = useCallback(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       fetchUnreadNotificationsCount();
     }
-  }, [fetchUnreadNotificationsCount, isAuthenticated]);
-
-  useEffect(() => {
-    checkNotifications();
-  }, [checkNotifications, location.pathname]);
+  }, [isAuthenticated, fetchUnreadNotificationsCount, location.pathname]);
 
   const handleLogout = () => {
     // Use Keycloak logout which will also clear localStorage and update Redux state
@@ -58,33 +54,50 @@ const Navbar: React.FC = () => {
     return null;
   }
 
+  const items = [
+    {
+      key: '/adduser',
+      icon: <HomeOutlined />,
+      label: <Link to="/adduser">Home</Link>,
+    },
+    {
+      key: '/notifications',
+      icon: (
+        <Badge count={unreadNotificationsCount} offset={[10, 0]}>
+          <BellOutlined />
+        </Badge>
+      ),
+      label: <Link to="/notifications">Notifications</Link>,
+    },
+    {
+      key: '/profile',
+      icon: <UserOutlined />,
+      label: <Link to="/profile">Profile</Link>,
+    },
+    {
+      key: 'logout',
+      className: 'logout-item',
+      label: (
+        <Button 
+          type="link" 
+          icon={<LogoutOutlined />} 
+          onClick={handleLogout}
+          className="logout-button"
+        >
+          Logout
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className="navbar-container">
-      <Menu mode="horizontal" selectedKeys={[location.pathname]} className="navbar-menu">
-        <Menu.Item key="/adduser" icon={<HomeOutlined />}>
-          <Link to="/adduser">Home</Link>
-        </Menu.Item>
-        <Menu.Item key="/notifications" icon={
-          <Badge count={unreadNotificationsCount} offset={[10, 0]}>
-            <BellOutlined />
-          </Badge>
-        }>
-          <Link to="/notifications">Notifications</Link>
-        </Menu.Item>
-        <Menu.Item key="/profile" icon={<UserOutlined />}>
-          <Link to="/profile">Profile</Link>
-        </Menu.Item>
-        <Menu.Item key="logout" className="logout-item">
-          <Button 
-            type="link" 
-            icon={<LogoutOutlined />} 
-            onClick={handleLogout}
-            className="logout-button"
-          >
-            Logout
-          </Button>
-        </Menu.Item>
-      </Menu>
+      <Menu 
+        mode="horizontal" 
+        selectedKeys={[location.pathname]} 
+        className="navbar-menu"
+        items={items}
+      />
     </div>
   );
 };
