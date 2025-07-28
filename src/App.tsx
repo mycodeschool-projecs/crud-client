@@ -8,12 +8,11 @@ import Register from "./components/Register";
 import Notifications from "./components/Notifications";
 import Navbar from "./components/Navbar";
 import KeycloakProvider from './keycloak/KeycloakProvider';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <Provider store={store}>
+    <AuthProvider>
       <KeycloakProvider>
         <Router>
           <div className="app-container">
@@ -30,7 +29,7 @@ function App() {
           </div>
         </Router>
       </KeycloakProvider>
-    </Provider>
+    </AuthProvider>
   );
 }
 

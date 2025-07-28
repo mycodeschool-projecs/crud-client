@@ -4,14 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { LoginOutlined, UserAddOutlined, LockOutlined, WarningOutlined } from '@ant-design/icons';
 import { useEffect, useCallback } from "react";
 import { login, refreshTokenHelper } from "../../keycloak/KeycloakProvider";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { 
-  selectIsAuthenticated, 
-  selectIsLoading, 
-  selectSecurityStatus, 
-  selectTokenExpiration,
-  validateToken
-} from "../../store/slices/authSlice";
+import { useAuth } from "../../context/AuthContext";
 
 const { Title, Paragraph } = Typography;
 
@@ -25,34 +18,36 @@ interface User{
 
 export default function SecurityCheck(){
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
-    const isAuthenticated = useAppSelector(selectIsAuthenticated);
-    const isLoading = useAppSelector(selectIsLoading);
-    const securityStatus = useAppSelector(selectSecurityStatus);
-    const tokenExpiration = useAppSelector(selectTokenExpiration);
+    const { 
+        isAuthenticated, 
+        isLoading, 
+        securityStatus, 
+        tokenExpiration, 
+        validateToken 
+    } = useAuth();
 
     // Determine if token is valid based on security status
     const tokenValid = securityStatus === 'authenticated';
 
-    // Function to validate token and check expiration using Redux
+    // Function to validate token and check expiration
     const validateTokenStatus = useCallback(() => {
-        dispatch(validateToken());
+        validateToken();
         return securityStatus === 'authenticated';
-    }, [dispatch, securityStatus]);
+    }, [validateToken, securityStatus]);
 
-    // Function to refresh token if needed using Redux
+    // Function to refresh token if needed
     const refreshTokenIfNeeded = useCallback(async () => {
         try {
             const refreshed = await refreshTokenHelper();
             if (refreshed) {
                 message.success('Session refreshed successfully');
-                // Validate token after refresh to update Redux state
-                dispatch(validateToken());
+                // Validate token after refresh to update state
+                validateToken();
                 return true;
             } else {
                 message.info('Token is still valid, no need to refresh');
                 // Still validate the token to ensure state is up to date
-                dispatch(validateToken());
+                validateToken();
                 return tokenValid;
             }
         } catch (error) {
@@ -60,17 +55,17 @@ export default function SecurityCheck(){
             message.error('Session expired. Please authenticate again.');
             return false;
         }
-    }, [dispatch, tokenValid]);
+    }, [validateToken, tokenValid]);
 
     const checkAuthentication = useCallback(() => {
-        // Validate token to update Redux state
-        dispatch(validateToken());
+        // Validate token to update state
+        validateToken();
 
         if (isAuthenticated && tokenValid) {
             // If user is authenticated and token is valid, navigate to login page
             navigate("/login");
         }
-    }, [dispatch, navigate, isAuthenticated, tokenValid]);
+    }, [navigate, isAuthenticated, tokenValid, validateToken]);
 
     useEffect(() => {
         checkAuthentication();
@@ -78,12 +73,12 @@ export default function SecurityCheck(){
         // Set up interval to periodically check token validity
         const intervalId = setInterval(() => {
             if (isAuthenticated) {
-                dispatch(validateToken());
+                validateToken();
             }
         }, 60000); // Check every minute
 
         return () => clearInterval(intervalId);
-    }, [checkAuthentication, dispatch, isAuthenticated]);
+    }, [checkAuthentication, validateToken, isAuthenticated]);
 
     const authenticateWithKeycloak = () => {
         try {

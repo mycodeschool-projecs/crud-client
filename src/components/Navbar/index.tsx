@@ -5,14 +5,13 @@ import { HomeOutlined, UserOutlined, BellOutlined, LogoutOutlined } from '@ant-d
 import Api from '../../Api';
 import './style.css';
 import { logout } from '../../keycloak/KeycloakProvider';
-import { useAppSelector } from '../../store/hooks';
-import { selectIsAuthenticated } from '../../store/slices/authSlice';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(0);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const { isAuthenticated } = useAuth();
 
   const fetchUnreadNotificationsCount = useCallback(async () => {
     try {
