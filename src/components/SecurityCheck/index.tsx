@@ -3,7 +3,7 @@ import { WrapperLanding } from "./indexstyle";
 import { useNavigate } from "react-router-dom";
 import { LoginOutlined, UserAddOutlined, LockOutlined, WarningOutlined } from '@ant-design/icons';
 import { useEffect, useCallback } from "react";
-import { login, refreshTokenHelper } from "../../keycloak/KeycloakProvider";
+import { login, register, refreshTokenHelper } from "../../keycloak/KeycloakProvider";
 import { useAuth } from "../../context/AuthContext";
 
 const { Title, Paragraph } = Typography;
@@ -57,28 +57,12 @@ export default function SecurityCheck(){
         }
     }, [validateToken, tokenValid]);
 
-    const checkAuthentication = useCallback(() => {
-        // Validate token to update state
+    // Run only once on mount to prevent infinite loops
+    useEffect(() => {
         validateToken();
 
-        if (isAuthenticated && tokenValid) {
-            // If user is authenticated and token is valid, navigate to login page
-            navigate("/login");
-        }
-    }, [navigate, isAuthenticated, tokenValid, validateToken]);
-
-    useEffect(() => {
-        checkAuthentication();
-
-        // Set up interval to periodically check token validity
-        const intervalId = setInterval(() => {
-            if (isAuthenticated) {
-                validateToken();
-            }
-        }, 60000); // Check every minute
-
-        return () => clearInterval(intervalId);
-    }, [checkAuthentication, validateToken, isAuthenticated]);
+        return () => {}; // Empty cleanup function
+    }, []); // Empty dependency array ensures it runs only once on mount
 
     const authenticateWithKeycloak = () => {
         try {
@@ -86,6 +70,15 @@ export default function SecurityCheck(){
         } catch (error) {
             console.error('Authentication error:', error);
             message.error('Failed to initiate authentication. Please try again.');
+        }
+    };
+
+    const registerWithKeycloak = () => {
+        try {
+            register();
+        } catch (error) {
+            console.error('Registration error:', error);
+            message.error('Failed to initiate registration. Please try again.');
         }
     };
 
@@ -252,6 +245,18 @@ export default function SecurityCheck(){
                                     disabled={!tokenValid}
                                 >
                                     Create New Account
+                                </Button>
+                            </Tooltip>
+
+                            <Tooltip title="Register with Keycloak">
+                                <Button 
+                                    type="default" 
+                                    className="button keycloak-reg" 
+                                    onClick={registerWithKeycloak}
+                                    icon={<UserAddOutlined />}
+                                    size="large"
+                                >
+                                    Register with Keycloak
                                 </Button>
                             </Tooltip>
                         </Space>

@@ -33,7 +33,7 @@ const KeycloakProvider: React.FC<KeycloakProviderProps> = ({ children }) => {
     initKeycloak();
 
     // No need for cleanup function
-  }, [initializeKeycloak, validateToken]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -51,4 +51,4 @@ const KeycloakProvider: React.FC<KeycloakProviderProps> = ({ children }) => {
 export default KeycloakProvider;
 
 // Helper functions are now exported from AuthContext
-export { login, logout, getToken, isAuthenticated, refreshToken as refreshTokenHelper } from '../context/AuthContext';
+export { login, logout, register, getToken, isAuthenticated, refreshToken as refreshTokenHelper } from '../context/AuthContext';

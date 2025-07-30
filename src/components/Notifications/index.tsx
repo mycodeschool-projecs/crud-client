@@ -5,16 +5,18 @@ import { Card, List, Badge, Button, Typography, Tag, Spin, Alert, Empty, Divider
 import { BellOutlined, CheckOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import './indexstyle.css';
 
+// Create a single instance of the API outside the component
+const notificationsApi = new Api();
+
 const Notifications: React.FC = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const api = new Api();
 
     const fetchNotifications = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await api.getAllNotifications();
+            const data = await notificationsApi.getAllNotifications();
             setNotifications(data);
             setError(null);
         } catch (err) {
@@ -23,7 +25,7 @@ const Notifications: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [api]);
+    }, []);
 
     useEffect(() => {
         fetchNotifications();
@@ -31,7 +33,7 @@ const Notifications: React.FC = () => {
 
     const handleMarkAsRead = async (id: number) => {
         try {
-            await api.markNotificationAsRead(id);
+            await notificationsApi.markNotificationAsRead(id);
             console.log('Notification marked as read');
             // Update the local state to reflect the change
             setNotifications(prevNotifications =>
@@ -48,7 +50,7 @@ const Notifications: React.FC = () => {
 
     const handleMarkAllAsRead = async () => {
         try {
-            await api.markAllNotificationsAsRead();
+            await notificationsApi.markAllNotificationsAsRead();
             console.log('All notifications marked as read');
             // Update the local state to reflect the change
             setNotifications(prevNotifications =>

@@ -12,7 +12,7 @@ export default class Api {
             let basepath = await this.getBaseURL();
             if (!basepath) {
                 console.log("++ Nu aveam basepath");
-                basepath = "http://localhost:7500"; // fallback if config fails
+                basepath = "http://localhost:8082"; // fallback if config fails
             }
 
             const url = basepath + path;
@@ -58,7 +58,7 @@ export default class Api {
         console.log("------api add---");
         let response= await this.api(`/api/v1/addclient`,'POST',client,tk);
         console.log("status="+response.status);
-        if(response.status==200){
+        if(response.status===200){
             console.log("KORECT")
 
             return response.json();
@@ -73,7 +73,7 @@ export default class Api {
         console.log(tk);
         console.log("------api add---");
         let response= await this.api(`/api/v1/updclient`,'POST',client,tk);
-        if(response.status==200){
+        if(response.status===200){
             console.log("KORECT")
             return response.json();
         }else{
@@ -91,7 +91,7 @@ export default class Api {
         console.log(response);
         console.log("------------------------------------------------");
 
-        if(response.status==200){
+        if(response.status===200){
             return response.json() as Promise<Client>;
         }else{
             return Promise.reject(response.message);
@@ -104,7 +104,7 @@ export default class Api {
             return response.BASE_URL;
         } catch (e) {
             console.error("Error loading config:", e);
-            return "http://localhost:7500"; // Return a default value instead of rejecting
+            return "http://localhost:8082"; // Return a default value instead of rejecting
         }
     }
     delClient=async (client:string):Promise<Client>=>{
@@ -112,7 +112,7 @@ export default class Api {
         console.log(tk);
         console.log("------api add---");
         let response= await this.api(`/api/v1/delclient/${client}`,'DELETE',null,tk);
-        if(response.status==200){
+        if(response.status===200){
             return response.json();
         }else{
             return Promise.reject([]);
@@ -126,7 +126,7 @@ export default class Api {
         let response=await this.api('/api/v1/clients','GET',null,tk);
         console.log(response);
         console.log("-------------------get all")
-        if(response.status==200){
+        if(response.status===200){
             return response.json();
         }else{
             return Promise.reject("Coud not get list of Clients!!")
@@ -139,7 +139,7 @@ export default class Api {
         console.log(user);
 
             let response=await this.api('/api/v1/auth/signup','POST',user,null);
-            if(response.status==200){
+            if(response.status===200){
                 return response.json();
             }else {
                 return Promise.reject("Nu am putut adauga")
@@ -154,7 +154,7 @@ export default class Api {
         let response=await this.api('/api/v1/auth/signin','POST',user,null);
         console.log("Raspuns");
         console.log(response);
-        if(response.status==200){
+        if(response.status===200){
               return response.json();
         }
         return Promise.reject("Nashpa")
@@ -174,7 +174,7 @@ export default class Api {
         let response = await this.api('/api/v1/notifications', 'GET', null, tk);
         console.log("Response from getAllNotifications:", response);
 
-        if (response.status == 200) {
+        if (response.status === 200) {
             return response.json();
         } else {
             return Promise.reject("Could not get notifications");
@@ -182,15 +182,23 @@ export default class Api {
     }
 
     getNotificationsByReadStatus = async (read: boolean): Promise<Notification[]> => {
-        let tk = localStorage.getItem("tkn");
+        try {
+            let tk = localStorage.getItem("tkn");
 
-        let response = await this.api(`/api/v1/notifications/status/${read}`, 'GET', null, tk);
-        console.log("Response from getNotificationsByReadStatus:", response);
+            let response = await this.api(`/api/v1/notifications/status/${read}`, 'GET', null, tk);
+            console.log("Response from getNotificationsByReadStatus:", response);
 
-        if (response.status == 200) {
-            return response.json();
-        } else {
-            return Promise.reject("Could not get notifications by read status");
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                console.error(`Error fetching notifications by read status: ${response.status}`);
+                // Return empty array instead of rejecting to prevent app crashes
+                return [];
+            }
+        } catch (error) {
+            console.error("Exception in getNotificationsByReadStatus:", error);
+            // Return empty array on exception
+            return [];
         }
     }
 
@@ -200,7 +208,7 @@ export default class Api {
         let response = await this.api(`/api/v1/notifications/${id}/mark-read`, 'PUT', null, tk);
         console.log("Response from markNotificationAsRead:", response);
 
-        if (response.status == 200) {
+        if (response.status === 200) {
             console.log("Notification marked as read");
             return response.json();
         } else {
@@ -214,7 +222,7 @@ export default class Api {
         let response = await this.api('/api/v1/notifications/mark-all-read', 'PUT', null, tk);
         console.log("Response from markAllNotificationsAsRead:", response);
 
-        if (response.status == 200) {
+        if (response.status === 200) {
             console.log("All notifications marked as read");
             return;
         } else {

@@ -57,8 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const authenticated = await keycloak.init({
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        onLoad: 'login-required',
         pkceMethod: 'S256',
       });
 
@@ -288,6 +287,12 @@ export const login = () => {
   keycloak.login({
     redirectUri: window.location.origin
   });
+};
+
+export const register = () => {
+  // keycloak.register({
+  //   redirectUri: window.location.origin
+  // });
 };
 
 export const logout = () => {

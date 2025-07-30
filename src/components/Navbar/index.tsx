@@ -14,23 +14,22 @@ const Navbar: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   const fetchUnreadNotificationsCount = useCallback(async () => {
-    try {
-      const api = new Api();
-      const notifications = await api.getNotificationsByReadStatus(false);
-      setUnreadNotificationsCount(notifications.length);
-    } catch (error) {
-      console.error("Error fetching unread notifications:", error);
-    }
-  }, []);
+    if (!isAuthenticated) return;
+
+    // API method now handles errors internally and returns an empty array instead of rejecting
+    const api = new Api();
+    const notifications = await api.getNotificationsByReadStatus(false);
+    setUnreadNotificationsCount(notifications.length);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchUnreadNotificationsCount();
     }
-  }, [isAuthenticated, fetchUnreadNotificationsCount, location.pathname]);
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
-    // Use Keycloak logout which will also clear localStorage and update Redux state
+    // Use Keycloak logout which will also clear localStorage and update auth state
     logout();
     // No need to navigate, Keycloak will redirect to the login page
   };

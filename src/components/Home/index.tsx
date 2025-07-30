@@ -56,6 +56,9 @@ export default function Home() {
   ];
 
   const fetchUnreadNotificationsCount = useCallback(async () => {
+    const token = localStorage.getItem("tkn");
+    if (!token) return;
+
     try {
       const api = new Api();
       const notifications = await api.getNotificationsByReadStatus(false);
@@ -96,7 +99,7 @@ export default function Home() {
 
     loadData();
     fetchUnreadNotificationsCount();
-  }, [navigate, loadData, fetchUnreadNotificationsCount]);
+  }, [navigate, loadData]);
 
   const findClientByEmail = async (email: string): Promise<Client | null> => {
     try {
@@ -203,7 +206,10 @@ export default function Home() {
 
   useEffect(() => {
     const handleFocus = () => {
-      fetchUnreadNotificationsCount();
+      const token = localStorage.getItem("tkn");
+      if (token) {
+        fetchUnreadNotificationsCount();
+      }
     };
 
     window.addEventListener('focus', handleFocus);
@@ -281,10 +287,10 @@ export default function Home() {
               </Form.Item>
 
               <div className="button-group">
-                <Button type="primary" htmlType="submit" className="btn submit">
+                <Button type="primary" htmlType="submit" className="btn submit" disabled={loading}>
                   Save
                 </Button>
-                <Button type="primary" danger onClick={deleteClient} className="btn delete">
+                <Button type="primary" danger onClick={deleteClient} className="btn delete" disabled={loading}>
                   Delete
                 </Button>
               </div>

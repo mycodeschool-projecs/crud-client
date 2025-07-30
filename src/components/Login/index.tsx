@@ -68,11 +68,22 @@ export default function Login() {
                         </Form.Item>
 
                         <div className="buttons">
-                            <Button type="primary" htmlType="submit" className="btn submit">
+                            <Button type="primary" htmlType="submit" className="btn submit" disabled={loading}>
                                 Login
                             </Button>
-                            <Button type="default" className="btn back" onClick={goBack}>
+                            <Button type="default" className="btn back" onClick={goBack} disabled={loading}>
                                 Back
+                            </Button>
+                        </div>
+                        <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                            Don't have an account?{' '}
+                            <Button 
+                                type="link" 
+                                onClick={() => navigate('/register')}
+                                style={{ padding: '0' }}
+                                disabled={loading}
+                            >
+                                Create Account
                             </Button>
                         </div>
                     </Form>
