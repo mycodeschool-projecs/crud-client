@@ -27,7 +27,7 @@ export default class ApiKeycloak{
             let userLogin=body as LoginUser;
             const basePath="http://localhost:8080";
             const url=basePath+path;
-
+            console.log("URL este "+url);
             const options: RequestInit = {
                 method,
                 mode: 'cors',
@@ -39,7 +39,7 @@ export default class ApiKeycloak{
                     client_id: 'kube-land-frontend',
                     code: code!,
                     redirect_uri: window.location.origin,
-                    client_secret: "your-client-secret-here",
+                    client_secret: "DOnglEgXzEcuuEP4uGiD1mPxuDjQL1qi",
                     username: userLogin.email,
                     password: userLogin.password
 
