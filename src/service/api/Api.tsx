@@ -1,8 +1,8 @@
-import HttpResponse from "./model/HttpResponse";
-import {Client} from "./model/Client";
-import {LoginUser, User} from "./model/User";
-import {loadConfig} from "./utile/utile";
-import {Notification} from "./model/Notification";
+import HttpResponse from "../../model/HttpResponse";
+import {Client} from "../../model/Client";
+import {LoginUser, User} from "../../model/User";
+import {loadConfig} from "../../utile/utile";
+import {Notification} from "../../model/Notification";
 
 export default class Api {
 

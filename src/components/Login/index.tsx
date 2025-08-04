@@ -2,7 +2,7 @@ import { Button, Form, Input, message, Spin } from "antd";
 import { WrapperLogin } from "./indexstyle";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Api from "../../Api";
+import Api from "../../service/api/Api";
 import { LoginUser } from "../../model/User";
 
 export default function Login() {
