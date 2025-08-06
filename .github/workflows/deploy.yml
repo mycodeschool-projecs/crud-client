@@ -78,7 +78,7 @@ jobs:
           git commit -m "new app version: ${{ env.TAG }}"
           echo -e "-----Commited ..."
           echo -e "-----Before push to  head ${{ github.ref_name }}"
-          git push origin HEAD:${{ github.ref_name }}  
+          git push origin HEAD: master 
 
 
   update-k8s-files:
