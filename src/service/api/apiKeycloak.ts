@@ -44,7 +44,7 @@ export default class ApiKeycloak{
                     client_id: 'kube-land-frontend',
                     code: code!,
                     redirect_uri: window.location.origin,
-                    client_secret: "DOnglEgXzEcuuEP4uGiD1mPxuDjQL1qi",
+                    client_secret: "your-client-secret-here",
                     username: userLogin.email,
                     password: userLogin.password
 
