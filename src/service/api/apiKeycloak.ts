@@ -27,10 +27,12 @@ export default class ApiKeycloak{
             let userLogin=body as LoginUser;
             const basePath="http://localhost:8080";
             let securityPath = await this.getKCLURL();
+
             if (!securityPath) {
                 console.log("++ Nu aveam securityPath");
                 securityPath= "http://localhost:8080"; // fallback if config fails
             }
+
             const url=securityPath+path;
             console.log("URL este "+url);
             const options: RequestInit = {
