@@ -76,7 +76,10 @@ jobs:
           git config user.email github-actions@github.com
           git add .
           git commit -m "new app version: ${{ env.TAG }}"
+          echo -e "Commited ...)"
+          echo -e "Before push to ${{ github.ref_name }}"
           git push origin HEAD:${{ github.ref_name }}  
+
 
   update-k8s-files:
     needs: build-client
