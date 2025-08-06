@@ -18,6 +18,7 @@ export default class ApiKeycloak{
         try {
 
 
+            const clientSecret = process.env.REACT_APP_KEYCLOAK_CLIENT_SECRET;
 
             // const url = ;
             // console.log("Request URL:", url);
@@ -46,7 +47,7 @@ export default class ApiKeycloak{
                     client_id: 'kube-land-frontend',
                     code: code!,
                     redirect_uri: window.location.origin,
-                    client_secret: "your-client-secret-here",
+                    client_secret: clientSecret?clientSecret:'',
                     username: userLogin.email,
                     password: userLogin.password
 
