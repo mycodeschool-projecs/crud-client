@@ -26,7 +26,12 @@ export default class ApiKeycloak{
             const code = urlParams.get('code');
             let userLogin=body as LoginUser;
             const basePath="http://localhost:8080";
-            const url=basePath+path;
+            let securityPath = await this.getKCLURL();
+            if (!securityPath) {
+                console.log("++ Nu aveam securityPath");
+                securityPath= "http://localhost:8080"; // fallback if config fails
+            }
+            const url=securityPath+path;
             console.log("URL este "+url);
             const options: RequestInit = {
                 method,
@@ -65,10 +70,10 @@ export default class ApiKeycloak{
     }
 
 
-    getBaseURL=async () =>{
+    getKCLURL=async () =>{
         try {
             let response = await loadConfig();
-            return response.BASE_URL;
+            return response.KEYCLOAK_URL;
         } catch (e) {
             console.error("Error loading config:", e);
             return "http://localhost:7500"; // Return a default value instead of rejecting
