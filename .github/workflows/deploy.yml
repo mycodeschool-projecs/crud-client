@@ -83,7 +83,7 @@ jobs:
 #          git push origin HEAD:master
 
   update-docker-compose:
-    needs: build-api
+    needs: build-client
     runs-on: ubuntu-latest
     #    steps:
     #      - run: echo "Deploying version ${{ needs.build-api.outputs.tag }}"
