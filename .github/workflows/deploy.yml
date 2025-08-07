@@ -82,52 +82,108 @@ jobs:
 #          echo -e "-----Before push to  head ${{ github.ref_name }}"
 #          git push origin HEAD:master
 
-  update-docker-compose:
+#  update-docker-compose:
+#    needs: build-client
+#    runs-on: ubuntu-latest
+#    #    steps:
+#    #      - run: echo "Deploying version ${{ needs.build-api.outputs.tag }}"
+#    env:
+#      TAG: ${{ needs.build-client.outputs.tag }}
+#      ENVIRONMENT: ${{ needs.build-client.outputs.environment }}
+#    steps:
+#      - name: Checkout docker-files repository
+#        uses: actions/checkout@v4
+#        with:
+#          repository: 'mycodeschool-projecs/crud-docker-files'  # Fixed typo
+#          token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
+#          path: 'crud-docker-files'
+#
+#      - name: Update docker-compose.yml
+#        run: |
+#          cd crud-docker-files/
+#
+#          echo "📋 Current docker-compose.yaml:"
+#          cat docker-compose.yaml
+#
+#          # Update the image tag
+#          sed -i -E "s|(mycodeschool/crud-client-api:)[^[:space:]\"']+|\1${{ needs.build-client.outputs.tag }}|g" docker-compose.yaml
+#
+#          echo -e "\n✅ Updated docker-compose.yaml:"
+#          cat docker-compose.yaml
+#
+#      - name: Commit and push changes
+#        run: |
+#          cd crud-docker-files/
+#
+#          git config user.name "github-actions[bot]"
+#          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#
+#          git add docker-compose.yaml
+#
+#          if git diff --staged --quiet; then
+#            echo "📝 No changes to commit"
+#          else
+#            git commit -m "chore: update crud-command-api to ${{ needs.build-client.outputs.tag }}"
+#            git push origin HEAD:master
+#            echo "✅ Pushed new version: ${{ needs.build-client.outputs.tag }}"
+#          fi
+
+  update-docker-files:
     needs: build-client
     runs-on: ubuntu-latest
-    #    steps:
-    #      - run: echo "Deploying version ${{ needs.build-api.outputs.tag }}"
     env:
       TAG: ${{ needs.build-client.outputs.tag }}
       ENVIRONMENT: ${{ needs.build-client.outputs.environment }}
     steps:
-      - name: Checkout docker-files repository
-        uses: actions/checkout@v4
+      - name: Checkout other repository
+        uses: actions/checkout@v2
         with:
-          repository: 'mycodeschool-projecs/crud-docker-files'  # Fixed typo
+          repository: 'mycodeschool-projecs/crud-docker-files'
           token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
           path: 'crud-docker-files'
 
-      - name: Update docker-compose.yml
+      - name: Debug input variables
         run: |
-          cd crud-docker-files/
+          echo "Received TAG: $TAG"
+          echo "Environment: $ENVIRONMENT"
 
-          echo "📋 Current docker-compose.yaml:"
-          cat docker-compose.yaml
-
-          # Update the image tag
-          sed -i -E "s|(mycodeschool/crud-client-api:)[^[:space:]\"']+|\1${{ needs.build-client.outputs.tag }}|g" docker-compose.yaml
-
-          echo -e "\n✅ Updated docker-compose.yaml:"
-          cat docker-compose.yaml
-
-      - name: Commit and push changes
+      - name: Update docker-compose.yaml image tag
         run: |
+          set -x  # Enable debugging
           cd crud-docker-files/
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add docker-compose.yaml
-
-          if git diff --staged --quiet; then
-            echo "📝 No changes to commit"
+  
+          echo "🔍 Before update:"
+          grep "mycodeschool/crud-client-api" docker-compose.yaml || true
+  
+          # Save original for comparison
+          cp docker-compose.yaml docker-compose.yaml.bak
+  
+          # Update image tag with sed
+          sed -i -E "s_(mycodeschool/crud-client-api:)([^\" ]*)_\1${TAG}_" docker-compose.yaml
+  
+          echo "✅ After update:"
+          grep "mycodeschool/crud-client-api" docker-compose.yaml || true
+  
+          # Check diff
+          echo "🔁 Diff with original:"
+          diff docker-compose.yaml.bak docker-compose.yaml || true
+  
+          # Show git status
+          echo "📂 Git status:"
+          git status
+  
+          # Check if any file changed
+          if git diff --quiet; then
+            echo "❌ No changes detected. Skipping commit."
           else
-            git commit -m "chore: update crud-command-api to ${{ needs.build-client.outputs.tag }}"
+            echo "✅ Changes detected. Committing..."
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add docker-compose.yaml
+            git commit -m "Update image tag to: ${TAG}"
             git push origin HEAD:master
-            echo "✅ Pushed new version: ${{ needs.build-client.outputs.tag }}"
           fi
-
+  
 
   update-k8s-files:
     needs: build-client
