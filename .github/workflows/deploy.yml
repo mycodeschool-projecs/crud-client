@@ -52,35 +52,95 @@ jobs:
   
   
 
-  update-docker-files:
-    needs: build-client
+
+#  update-docker-files:
+#    needs: build-client
+#    runs-on: ubuntu-latest
+#    env:
+#      TAG: ${{ needs.build-client.outputs.tag }}
+#      ENVIRONMENT: ${{ needs.build-client.outputs.environment }}
+#    steps:
+#      - name: Checkout other repository
+#        uses: actions/checkout@v2
+#        with:
+#          repository: 'mycodeschool-projecs/crud-docker-files'
+#          token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
+#          path: 'crud-docker-files'
+#
+#      - name: Update and commit app version in docker-compose.yaml in other repository
+#        run: |
+#          cd crud-docker-files/
+#          echo -e "Current ./docker-compose.yaml\n$(cat docker-compose.yaml)"
+#          echo -e "NEW image ${{ env.TAG }}"
+#          sed -i -E "s_(mycodeschool/crud-client-api:)([^\" ]*)_\1${{ needs.build-client.outputs.tag }}_" docker-compose.yaml
+#          echo -e "Updated ./docker-compose.yaml\n$(cat docker-compose.yaml)"
+#          git config user.name github-actions
+#          git config user.email github-actions@github.com
+#          git add .
+#          git commit -m "new app version: ${{ env.TAG }}"
+#          echo -e "-----Commited ..."
+#          echo -e "-----Before push to  head ${{ github.ref_name }}"
+#          git push origin HEAD:master
+
+  update-docker-compose:
+    needs: build-api
     runs-on: ubuntu-latest
+    #    steps:
+    #      - run: echo "Deploying version ${{ needs.build-api.outputs.tag }}"
     env:
-      TAG: ${{ needs.build-client.outputs.tag }}
-      ENVIRONMENT: ${{ needs.build-client.outputs.environment }}
+      TAG: ${{ needs.build-api.outputs.tag }}
+      ENVIRONMENT: ${{ needs.build-api.outputs.environment }}
     steps:
-      - name: Checkout other repository
-        uses: actions/checkout@v2
+      - name: Checkout docker-files repository
+        uses: actions/checkout@v4
         with:
-          repository: 'mycodeschool-projecs/crud-docker-files'
+          repository: 'mycodeschool-projecs/crud-docker-files'  # Fixed typo
           token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
           path: 'crud-docker-files'
 
-      - name: Update and commit app version in docker-compose.yaml in other repository
+      - name: Update docker-compose.yml
         run: |
           cd crud-docker-files/
-          echo -e "Current ./docker-compose.yaml\n$(cat docker-compose.yaml)"
-          echo -e "NEW image ${{ env.TAG }}"
-          sed -i -E "s_(mycodeschool/crud-client-api:)([^\" ]*)_\1${{ needs.build-client.outputs.tag }}_" docker-compose.yaml
-          echo -e "Updated ./docker-compose.yaml\n$(cat docker-compose.yaml)"
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "new app version: ${{ env.TAG }}"
-          echo -e "-----Commited ..."
-          echo -e "-----Before push to  head ${{ github.ref_name }}"
-          git push origin HEAD:master 
 
+          echo "📋 Current docker-compose.yaml:"
+          cat docker-compose.yaml
+
+          # Update the image tag
+          sed -i -E "s|(mycodeschool/crud-docker-files:)[^[:space:]\"']+|\1${{ needs.build-api.outputs.tag }}|g" docker-compose.yaml
+
+          echo -e "\n✅ Updated docker-compose.yaml:"
+          cat docker-compose.yaml
+
+      - name: Commit and push changes
+        run: |
+          cd crud-docker-files/
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docker-compose.yaml
+
+          if git diff --staged --quiet; then
+            echo "📝 No changes to commit"
+          else
+            git commit -m "chore: update crud-command-api to ${{ needs.build-api.outputs.tag }}"
+            git push origin HEAD:master
+            echo "✅ Pushed new version: ${{ needs.build-api.outputs.tag }}"
+          fi
+
+  notify-docker-success:
+    needs: [build-api, update-docker-compose]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Summary
+        run: |
+          echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: mycodeschool/crud-command-api:${{ needs.build-api.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ needs.build-api.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
   update-k8s-files:
     needs: build-client
