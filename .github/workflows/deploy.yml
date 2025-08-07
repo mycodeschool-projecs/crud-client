@@ -70,6 +70,7 @@ jobs:
         run: |
           cd crud-docker-files/
           echo -e "Current ./docker-compose.yaml\n$(cat docker-compose.yaml)"
+          echo -e "NEW image ${{ env.TAG }}"
           sed -i -E 's_(mycodeschool/crud-client-api:)([^"]*)_\1'${{ env.TAG }}'_' docker-compose.yaml
           echo -e "Updated ./docker-compose.yaml\n$(cat docker-compose.yaml)"
           git config user.name github-actions
