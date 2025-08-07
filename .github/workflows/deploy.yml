@@ -106,7 +106,7 @@ jobs:
           cat docker-compose.yaml
 
           # Update the image tag
-          sed -i -E "s|(mycodeschool/crud-docker-files:)[^[:space:]\"']+|\1${{ needs.build-api.outputs.tag }}|g" docker-compose.yaml
+          sed -i -E "s|(mycodeschool/crud-client-api:)[^[:space:]\"']+|\1${{ needs.build-api.outputs.tag }}|g" docker-compose.yaml
 
           echo -e "\n✅ Updated docker-compose.yaml:"
           cat docker-compose.yaml
@@ -128,19 +128,6 @@ jobs:
             echo "✅ Pushed new version: ${{ needs.build-api.outputs.tag }}"
           fi
 
-  notify-docker-success:
-    needs: [build-api, update-docker-compose]
-    runs-on: ubuntu-latest
-    if: success()
-    steps:
-      - name: Summary
-        run: |
-          echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image**: mycodeschool/crud-command-api:${{ needs.build-api.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: ${{ needs.build-api.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
   update-k8s-files:
     needs: build-client
