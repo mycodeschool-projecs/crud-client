@@ -1,0 +1,3 @@
+window._env_ = {
+    REACT_APP_KEYCLOAK_CLIENT_SECRET: "CO0spLECPfS5SveyvzGXEq2yfjxxE2UQ"
+};

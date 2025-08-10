@@ -18,11 +18,12 @@ export default class ApiKeycloak{
         try {
 
 
-            const clientSecret = process.env.REACT_APP_KEYCLOAK_CLIENT_SECRET;
-
+            // const clientSecret = process.env.REACT_APP_KEYCLOAK_CLIENT_SECRET;
+            const clientSecret = window._env_?.REACT_APP_KEYCLOAK_CLIENT_SECRET;
+            // const clientSecret=window._env_?
             // const url = ;
             // console.log("Request URL:", url);
-
+            console.log(clientSecret);
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             let userLogin=body as LoginUser;
