@@ -1,4 +1,5 @@
 {
   "BASE_URL": "http://localhost:8082",
-  "KEYCLOAK_URL": "http://localhost:8080"
+  "KEYCLOAK_URL": "http://localhost:8080",
+  "KEYCLOAK_CLIENT_SECRET": "GHTaXpXVAmDsDamwpVt5wQ9ayHV8BMKn"
 }
