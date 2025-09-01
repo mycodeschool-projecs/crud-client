@@ -160,7 +160,7 @@ jobs:
   
           # Update image tag with sed
           TAG="${{ env.TAG }}"
-          sed -i -E "s|(mycodeschool/crud-client-api:)[^\" ]*|\1${TAG}|" docker-compose.yaml
+          sed -i -E "s|(mycodeschool/crud-client:)[^\" ]*|\1${TAG}|" docker-compose.yaml
           
           echo "✅ After update:"
           grep "mycodeschool/crud-client-api" docker-compose.yaml || true
